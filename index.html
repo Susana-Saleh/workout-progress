@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workout Progress</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+<style>
+:root {
+  --bg:#0f0f0f;--bg2:#1a1a1a;--bg3:#222;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);
+  --text:#f0f0f0;--text2:#888;--text3:#555;
+  --accent:#c8f135;--blue:#4a9eff;--red:#ff5a5a;
+  --radius:10px;--radius-lg:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+.app{max-width:480px;margin:0 auto;padding:0 0 80px;}
+
+/* Auth */
+.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+.auth-box{width:100%;max-width:380px;}
+.auth-logo{font-size:28px;font-weight:600;letter-spacing:-1px;margin-bottom:6px;}
+.auth-logo span{color:var(--accent);}
+.auth-sub{font-size:13px;color:var(--text2);margin-bottom:32px;}
+.auth-tabs{display:flex;gap:0;margin-bottom:24px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.auth-tab{flex:1;padding:10px;font-size:13px;font-weight:500;text-align:center;cursor:pointer;border:none;background:none;color:var(--text2);transition:all 0.15s;}
+.auth-tab.active{background:var(--accent);color:#0f0f0f;}
+.auth-err{font-size:12px;color:var(--red);margin-top:8px;text-align:center;min-height:18px;}
+
+/* Header */
+.header{padding:20px 20px 0;display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;}
+.header-title{font-size:22px;font-weight:600;letter-spacing:-0.5px;}
+.header-sub{font-size:12px;color:var(--text2);margin-top:2px;font-family:'DM Mono',monospace;}
+.streak{background:var(--accent);color:#0f0f0f;padding:4px 10px;border-radius:99px;font-size:12px;font-weight:600;}
+.user-btn{background:none;border:1px solid var(--border);border-radius:99px;padding:8px 14px;font-size:12px;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace;min-height:36px;}
+.user-btn:hover{border-color:var(--border2);color:var(--text);}
+
+/* Tabs */
+.tabs{display:flex;gap:2px;padding:0 20px;margin-bottom:20px;background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.tab{flex:1;padding:10px 2px;font-size:11px;font-weight:500;text-align:center;cursor:pointer;border:none;background:none;color:var(--text2);transition:color 0.15s;letter-spacing:0.02em;text-transform:uppercase;}
+.tab.active{color:var(--accent);border-bottom:2px solid var(--accent);}
+.tab i{display:block;font-size:17px;margin-bottom:2px;}
+
+/* Sections */
+.section{display:none;padding:0 20px;}
+.section.active{display:block;}
+
+/* Cards */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px;}
+.card-title{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;}
+
+/* Form */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.field label{font-size:11px;color:var(--text2);display:block;margin-bottom:5px;font-family:'DM Mono',monospace;}
+input,select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text);outline:none;transition:border 0.15s;}
+input:focus,select:focus{border-color:var(--accent);}
+select option{background:var(--bg3);}
+input[type=number]{-moz-appearance:textfield;}
+input[type=number]::-webkit-inner-spin-button{display:none;}
+
+/* Sets */
+.sets-header{display:grid;grid-template-columns:32px 1fr 1fr auto;gap:8px;font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:6px;padding:0 2px;}
+.set-row{display:grid;grid-template-columns:32px 1fr 1fr auto;gap:8px;margin-bottom:6px;align-items:center;}
+.set-num{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;text-align:center;padding-top:10px;}
+.set-row input{padding:9px 8px;text-align:center;}
+.set-del{width:32px;height:38px;background:none;border:1px solid var(--border);border-radius:8px;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all 0.15s;}
+.set-del:hover{border-color:var(--red);color:var(--red);}
+.add-set-btn{width:100%;padding:8px;background:none;border:1px dashed var(--border2);border-radius:var(--radius);color:var(--text2);font-size:13px;cursor:pointer;margin-top:4px;transition:all 0.15s;}
+.add-set-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+/* Buttons */
+.btn-primary{width:100%;padding:13px;background:var(--accent);color:#0f0f0f;border:none;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;transition:opacity 0.15s;margin-top:4px;}
+.btn-primary:hover{opacity:0.9;}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed;}
+.btn-ghost{background:none;border:1px solid var(--border);padding:7px 12px;border-radius:var(--radius);font-size:12px;color:var(--text2);cursor:pointer;transition:all 0.15s;}
+.btn-ghost:hover{border-color:var(--border2);color:var(--text);}
+
+/* Metrics */
+.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px;}
+.metric{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;}
+.metric-label{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:6px;}
+.metric-value{font-size:26px;font-weight:600;letter-spacing:-1px;}
+.metric-value.green{color:var(--accent);}
+.metric-value.blue{color:var(--blue);}
+
+/* Log items */
+.day-label{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.08em;margin:16px 0 8px;}
+.log-item{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);}
+.log-item:last-child{border-bottom:none;}
+.log-name{font-size:14px;font-weight:500;}
+.log-meta{font-size:12px;color:var(--text2);margin-top:2px;font-family:'DM Mono',monospace;}
+.log-right{text-align:right;}
+.log-max{font-size:14px;font-weight:600;font-family:'DM Mono',monospace;}
+.pr-badge{display:inline-block;background:var(--accent);color:#0f0f0f;font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;margin-left:5px;vertical-align:middle;}
+.muscle-tag{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;}
+
+/* Progress */
+.chart-wrap{position:relative;width:100%;height:200px;}
+.filters{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+.pr-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);}
+.pr-row:last-child{border-bottom:none;}
+.pr-ex{font-size:13px;font-weight:500;}
+.pr-date{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:2px;}
+.pr-weight{font-size:16px;font-weight:600;font-family:'DM Mono',monospace;color:var(--accent);}
+
+/* Empty / loading */
+.empty{text-align:center;padding:40px 20px;color:var(--text3);font-size:13px;}
+.empty i{font-size:32px;display:block;margin-bottom:8px;}
+.loading{text-align:center;padding:30px 20px;color:var(--text3);font-size:13px;}
+
+/* Toast */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--accent);color:#0f0f0f;padding:10px 20px;border-radius:99px;font-size:13px;font-weight:600;display:none;z-index:999;white-space:nowrap;}
+.toast.show{display:block;animation:fadeInOut 2.5s ease forwards;}
+@keyframes fadeInOut{0%{opacity:0;transform:translateX(-50%) translateY(8px)}15%{opacity:1;transform:translateX(-50%) translateY(0)}75%{opacity:1}100%{opacity:0;transform:translateX(-50%) translateY(-4px)}}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:20px;width:100%;max-width:400px;}
+.modal-title{font-size:16px;font-weight:600;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;}
+.modal-close{background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;padding:0;line-height:1;}
+.modal-actions{display:flex;gap:8px;margin-top:16px;}
+.btn-danger{flex:1;padding:10px;background:none;border:1px solid var(--red);border-radius:var(--radius);font-size:13px;color:var(--red);cursor:pointer;}
+
+/* Exercise list */
+.ex-item{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border);}
+.ex-item:last-child{border-bottom:none;}
+.ex-name{font-size:14px;font-weight:500;}
+.ex-muscle{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:2px;}
+.ex-actions{display:flex;gap:6px;flex-shrink:0;}
+.icon-btn{width:30px;height:30px;background:none;border:1px solid var(--border);border-radius:8px;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all 0.15s;}
+.icon-btn.danger:hover{border-color:var(--red);color:var(--red);}
+.muscle-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px;}
+.muscle-opt{padding:7px 4px;text-align:center;font-size:11px;border:1px solid var(--border);border-radius:8px;cursor:pointer;color:var(--text2);transition:all 0.15s;}
+.muscle-opt.selected{border-color:var(--accent);color:var(--accent);background:rgba(200,241,53,0.08);font-weight:500;}
+.ex-log-row{display:flex;gap:6px;align-items:flex-end;}
+.ex-log-row select{flex:1;}
+.unit-toggle{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);}
+.unit-toggle button{background:none;border:1px solid var(--border);border-radius:99px;padding:3px 10px;font-size:11px;color:var(--text2);cursor:pointer;transition:all 0.15s;font-family:'DM Mono',monospace;}
+.unit-toggle button.active{background:var(--accent);color:#0f0f0f;border-color:var(--accent);}
+.forgot-link{text-align:center;margin-top:12px;font-size:12px;color:var(--text2);cursor:pointer;text-decoration:underline;}
+.forgot-link:hover{color:var(--text);}
+.delete-workout-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:4px;transition:color 0.15s;flex-shrink:0;}
+.delete-workout-btn:hover{color:var(--red);}
+.ex-dropdown-item{padding:10px 14px;font-size:14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);}
+.ex-dropdown-item:last-child{border-bottom:none;}
+.ex-dropdown-item:hover,.ex-dropdown-item.active{background:rgba(200,241,53,0.08);color:var(--accent);}
+.ex-dropdown-muscle{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="auth-screen" class="auth-wrap">
+  <div class="auth-box">
+    <div class="auth-logo">Workout Progress</div>
+    <div class="auth-sub">Track your gains 💪</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login')">Entrar</button>
+      <button class="auth-tab" onclick="switchAuthTab('register')">Registrarse</button>
+    </div>
+    <div class="field" style="margin-bottom:12px;">
+      <label>Email</label>
+      <input type="email" id="auth-email" placeholder="tu@email.com">
+    </div>
+    <div class="field" style="margin-bottom:4px;">
+      <label>Contraseña</label>
+      <input type="password" id="auth-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')submitAuth()">
+    </div>
+    <div class="auth-err" id="auth-err"></div>
+    <button class="btn-primary" id="auth-btn" onclick="submitAuth()" style="margin-top:16px;">Entrar</button>
+    <div class="forgot-link" id="forgot-link" onclick="forgotPassword()">¿Olvidaste tu contraseña?</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app-screen" class="app" style="display:none;">
+  <div class="header">
+    <div>
+      <div class="header-title">Workout Progress</div>
+      <div class="header-sub" id="today-label"></div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <span id="streak-badge"></span>
+      <div class="unit-toggle">
+        <button id="unit-kg" class="active" onclick="setUnit('kg')">kg</button>
+        <button id="unit-lb" onclick="setUnit('lb')">lb</button>
+      </div>
+      <div style="position:relative;">
+        <button class="user-btn" id="user-btn" onclick="toggleUserMenu()">salir</button>
+        <div id="user-menu" style="display:none;position:absolute;right:0;top:110%;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);min-width:140px;z-index:50;overflow:hidden;">
+          <div style="padding:10px 16px;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border);" id="user-email-display"></div>
+          <button onclick="signOut()" style="width:100%;padding:12px 16px;background:none;border:none;color:var(--red);font-size:14px;cursor:pointer;text-align:left;">Cerrar sesión</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('log')"><i class="ti ti-plus"></i>Log</button>
+    <button class="tab" onclick="switchTab('history')"><i class="ti ti-history"></i>Historial</button>
+    <button class="tab" onclick="switchTab('progress')"><i class="ti ti-trending-up"></i>Progreso</button>
+    <button class="tab" onclick="switchTab('stats')"><i class="ti ti-trophy"></i>Stats</button>
+    <button class="tab" onclick="switchTab('exercises')"><i class="ti ti-list"></i>Ejercicios</button>
+    <button class="tab" onclick="switchTab('body')"><i class="ti ti-scale"></i>Peso</button>
+  </div>
+
+  <!-- LOG -->
+  <div class="section active" id="tab-log">
+    <div class="card">
+      <div class="form-row">
+        <div class="field">
+          <label>Fecha</label>
+          <input type="date" id="log-date" max="" onchange="renderTodayWorkouts()">
+        </div>
+        <div class="field">
+          <label>Ejercicio</label>
+          <div class="ex-log-row">
+            <div style="position:relative;flex:1;">
+              <input type="text" id="log-exercise-input" placeholder="Buscar ejercicio..." autocomplete="off" oninput="filterExDropdown()" onfocus="showExDropdown()" onblur="setTimeout(hideExDropdown,200)">
+              <div id="ex-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);max-height:220px;overflow-y:auto;z-index:50;margin-top:2px;"></div>
+              <input type="hidden" id="log-exercise">
+            </div>
+            <button class="new-ex-btn" onclick="openModal()"><i class="ti ti-plus"></i></button>
+          </div>
+        </div>
+      </div>
+      <div class="card-title" style="margin-bottom:8px;">Sets</div>
+      <div class="sets-header"><span></span><span id="weight-unit-label">Peso (kg)</span><span>Reps</span><span></span></div>
+      <div id="sets-container"></div>
+      <button class="add-set-btn" onclick="addSet()"><i class="ti ti-plus" style="font-size:12px;"></i> Agregar set</button>
+      <div class="field" style="margin-top:10px;">
+        <label>Notas</label>
+        <input type="text" id="log-notes" placeholder="Opcional...">
+      </div>
+      <button class="btn-primary" id="save-btn" onclick="saveWorkout()"><i class="ti ti-device-floppy"></i> Guardar entreno</button>
+    </div>
+    <div id="today-workouts"></div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="section" id="tab-history">
+    <div style="position:relative;margin-bottom:10px;">
+      <input type="text" id="hist-search" placeholder="Buscar ejercicio..." autocomplete="off" oninput="filterHistDropdown()" onfocus="showHistDropdown()" onblur="setTimeout(hideHistDropdown,200)">
+      <div id="hist-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);max-height:220px;overflow-y:auto;z-index:50;margin-top:2px;"></div>
+      <input type="hidden" id="hist-ex-filter-search">
+    </div>
+    <div class="filters">
+      <select id="hist-ex-filter" onchange="renderHistory()"><option value="">Todos los ejercicios</option></select>
+      <select id="hist-mu-filter" onchange="renderHistory()"><option value="">Todos los grupos</option></select>
+    </div>
+    <div id="history-list"></div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="section" id="tab-progress">
+    <div style="position:relative;margin-bottom:16px;">
+      <input type="text" id="prog-search" placeholder="Buscar ejercicio..." autocomplete="off" oninput="filterProgDropdown()" onfocus="showProgDropdown()" onblur="setTimeout(hideProgDropdown,200)">
+      <div id="prog-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);max-height:220px;overflow-y:auto;z-index:50;margin-top:2px;"></div>
+      <input type="hidden" id="prog-exercise">
+    </div>
+    <div id="prog-stats" class="metrics" style="display:none;"></div>
+    <div class="card" id="prog-chart-card" style="display:none;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div class="card-title" style="margin-bottom:0;">Peso máximo por sesión</div>
+        <div style="display:flex;gap:10px;font-size:11px;font-family:'DM Mono',monospace;">
+          <span style="color:#c8f135;">● sube</span>
+          <span style="color:#ffd166;">● igual</span>
+          <span style="color:#ff5a5a;">● baja</span>
+        </div>
+      </div>
+      <div class="chart-wrap"><canvas id="prog-chart" role="img" aria-label="Progreso de peso"></canvas></div>
+    </div>
+    <div class="card" id="prog-sets-card" style="display:none;">
+      <div class="card-title">Últimas sesiones</div>
+      <div id="prog-sessions"></div>
+    </div>
+    <div class="empty" id="prog-empty"><i class="ti ti-chart-line"></i>Selecciona un ejercicio</div>
+  </div>
+
+  <!-- BODY -->
+  <div class="section" id="tab-body">
+    <div class="card">
+      <div class="card-title">Registrar métricas</div>
+      <div class="form-row">
+        <div class="field"><label>Fecha</label><input type="date" id="body-date" max=""></div>
+        <div class="field"><label>Peso (kg)</label><input type="number" id="body-weight" placeholder="0.0" step="0.1" min="0" oninput="calcBodyFatPct()"></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Masa grasa (kg)</label><input type="number" id="body-fat-mass" placeholder="0.0" step="0.1" min="0" oninput="calcBodyFatPct()"></div>
+        <div class="field"><label>% Grasa <span style="color:var(--accent);font-size:10px;">auto</span></label><input type="number" id="body-fat" placeholder="—" step="0.1" min="0" readonly style="color:var(--text2);"></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Músculo esquelético (kg)</label><input type="number" id="body-muscle" placeholder="0.0" step="0.1" min="0"></div>
+        <div class="field"><label>Agua (kg)</label><input type="number" id="body-water" placeholder="0.0" step="0.1" min="0"></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Grasa visceral</label><input type="number" id="body-visceral" placeholder="0" step="1" min="0"></div>
+        <div class="field"><label>Tasa metabólica (kcal)</label><input type="number" id="body-metabolic" placeholder="0" step="1" min="0"></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Altura (cm) — para BMI</label><input type="number" id="body-height" placeholder="165" step="1" min="0"></div>
+        <div class="field"><label>BMI <span style="color:var(--accent);font-size:10px;">auto</span></label><input type="number" id="body-bmi-display" placeholder="—" readonly style="color:var(--text2);"></div>
+      </div>
+      <button class="btn-primary" onclick="saveBodyMetrics()"><i class="ti ti-device-floppy"></i> Guardar métricas</button>
+    </div>
+    <div id="body-latest"></div>
+    <div id="body-history-list"></div>
+    <div class="card" id="body-chart-card" style="display:none;margin-top:0;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div class="card-title" style="margin-bottom:0;">Evolución</div>
+        <select id="body-metric-select" onchange="renderBodyChart()" style="width:auto;padding:4px 8px;font-size:12px;">
+          <option value="weight">Peso</option>
+          <option value="body_fat">% Grasa</option>
+          <option value="fat_mass">Masa grasa</option>
+          <option value="muscle_mass">Músculo</option>
+          <option value="water">Agua</option>
+          <option value="visceral_fat">Grasa visceral</option>
+          <option value="metabolic_rate">Tasa metabólica</option>
+          <option value="bmi">BMI</option>
+        </select>
+      </div>
+      <div class="chart-wrap"><canvas id="body-chart" role="img" aria-label="Evolución métricas"></canvas></div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="section" id="tab-stats">
+    <div class="metrics" id="stats-metrics"></div>
+    <div class="card">
+      <div class="card-title">Volumen por grupo muscular (2 semanas)</div>
+      <div class="chart-wrap"><canvas id="muscle-chart" role="img" aria-label="Volumen por músculo"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Récords personales</div>
+      <div id="pr-list"></div>
+    </div>
+  </div>
+
+  <!-- EXERCISES -->
+  <div class="section" id="tab-exercises">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <span style="font-size:13px;color:var(--text2);" id="ex-count"></span>
+      <button class="btn-ghost" onclick="openModal()"><i class="ti ti-plus"></i> Nuevo</button>
+    </div>
+    <div class="card" style="padding:12px 16px;">
+      <div style="margin-bottom:12px;">
+        <input type="text" id="ex-search" placeholder="Buscar ejercicio..." oninput="renderExerciseList()">
+      </div>
+      <div id="exercise-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ejercicio -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalIfOutside(event)">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="modal-title-text">Nuevo ejercicio</span>
+      <button class="modal-close" onclick="closeModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="field" style="margin-bottom:12px;">
+      <label>Nombre</label>
+      <input type="text" id="modal-ex-name" placeholder="Ej: Bulgarian Split Squat">
+    </div>
+    <div class="field">
+      <label>Grupo muscular</label>
+      <div class="muscle-grid" id="modal-muscle-grid"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-danger" id="modal-delete-btn" onclick="deleteExercise()" style="display:none;">Eliminar</button>
+      <button class="btn-primary" onclick="saveExercise()" style="flex:2;">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth as _getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut as fbSignOut, sendPasswordResetEmail } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, where, orderBy, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDcDps3bxlETRyWCC3myxonIt3rAC_NMR4",
+  authDomain: "workout-progress-c3fe7.firebaseapp.com",
+  projectId: "workout-progress-c3fe7",
+  storageBucket: "workout-progress-c3fe7.firebasestorage.app",
+  messagingSenderId: "25138426031",
+  appId: "1:25138426031:web:dec6f94a98ca3bbd71e45a"
+};
+
+const _app = initializeApp(firebaseConfig);
+const _auth = _getAuth(_app);
+const _db = getFirestore(_app);
+
+// Make Firebase functions available globally
+const getAuth = () => _auth;
+const getDb = () => _db;
+const fb = () => ({ collection, addDoc, getDocs, deleteDoc, doc, query, where, orderBy, updateDoc, signOut: fbSignOut, sendPasswordResetEmail, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged });
+
+// ── DB HELPERS ────────────────────────────────────
+async function dbSelect(collName, userId) {
+  const q = query(collection(getDb(), collName), where('user_id','==',userId));
+  const snap = await getDocs(q);
+  const results = snap.docs.map(d => ({id: d.id, ...d.data()}));
+  results.sort((a,b) => (a.date||'').localeCompare(b.date||''));
+  return results;
+}
+
+async function dbInsert(collName, data) {
+  const docRef = await addDoc(collection(getDb(), collName), data);
+  return {id: docRef.id, ...data};
+}
+
+async function dbDelete(collName, docId) {
+  await deleteDoc(doc(getDb(), collName, docId));
+}
+
+async function dbUpsertCustomEx(name, muscle, userId) {
+  const q = query(collection(getDb(), 'custom_exercises'), where('user_id','==',userId), where('name','==',name));
+  const snap = await getDocs(q);
+  if (snap.empty) {
+    await addDoc(collection(getDb(), 'custom_exercises'), {user_id: userId, name, muscle});
+  } else {
+    await updateDoc(doc(getDb(), 'custom_exercises', snap.docs[0].id), {muscle});
+  }
+}
+
+
+const EXERCISES = {
+  'Abdominals':'Core','Arm Extension':'Triceps',
+  'Back Extension':'Lower Back','Calf seated':'Calf','Calf standing':'Calf',
+  'Chest Press MTS':'Chest','Chin Assistant':'Back','Crunch':'Core','Crunch Oblique':'Core',
+  'Curl Biceps':'Biceps','Decline Press':'Chest',
+  'Hip Abduction':'Glute/Hip','Hip Adduction':'Glute/Hip','Hip Thrust':'Glute',
+  'Incline Press':'Chest','Lat pullover':'Back','Lateral raise':'Shoulder',
+  'Leg Extention':'Leg','Leg press':'Leg','High Row MTS':'Back',
+  'Overhead shoulder':'Shoulder','Pectoral Fly':'Chest',
+  'Prone Leg Curl':'Hamstrings','Pull Down':'Back',
+  'Pull down pulley':'Back','Rear Deltoide':'Shoulder','Row':'Back','Row Cable':'Back',
+  'Row MTS':'Back','Seated Dip':'Triceps','Seated Leg Curl':'Hamstrings',
+  'Shoulder Press MTS':'Shoulder','Triceps extension':'Triceps',
+  'V-Squat':'Quads','Rotación torso':'Core'
+};
+const MUSCLE_COLORS = {
+  'Leg':'#4a9eff','Glute':'#c8f135','Glute/Hip':'#8db822','Back':'#a78bfa',
+  'Chest':'#ff7a5a','Shoulder':'#ffd166','Biceps':'#f087c0','Triceps':'#c084fc',
+  'Hamstrings':'#34d399','Quads':'#60e3f0','Calf':'#888',
+  'Core':'#5eead4','Lower Back':'#fb923c'
+};
+const MUSCLES = ['Leg','Quads','Glute','Glute/Hip','Back','Lower Back','Chest','Shoulder','Biceps','Triceps','Hamstrings','Calf','Core'];
+const INITIAL = [
+  {date:'2026-03-20',exercise:'Abdominales',muscle:'Core',sets:[{w:25.0,r:15},{w:25.0,r:15},{w:25.0,r:15},{w:30.0,r:15},{w:30.0,r:15}],maxW:30.0,volume:2025.0,notes:''},
+  {date:'2026-03-25',exercise:'Decline Press',muscle:'Chest',sets:[{w:10.0,r:15},{w:12.0,r:15},{w:12.0,r:12}],maxW:12.0,volume:474.0,notes:''},
+  {date:'2026-03-25',exercise:'Incline Press',muscle:'Chest',sets:[{w:10.0,r:15},{w:12.0,r:15},{w:12.0,r:15},{w:15.0,r:15}],maxW:15.0,volume:735.0,notes:''},
+  {date:'2026-03-25',exercise:'Front Pull Down Biceps',muscle:'Biceps',sets:[{w:20.0,r:30},{w:22.5,r:30}],maxW:22.5,volume:1275.0,notes:''},
+  {date:'2026-03-26',exercise:'Front Pull Down Back',muscle:'Back',sets:[{w:22.5,r:30},{w:22.5,r:30},{w:25.0,r:30},{w:25.0,r:30}],maxW:25.0,volume:2850.0,notes:''},
+  {date:'2026-03-26',exercise:'Incline Press',muscle:'Chest',sets:[{w:15.0,r:15},{w:17.0,r:15},{w:12.0,r:15},{w:5.0,r:15},{w:5.0,r:15}],maxW:17.0,volume:810.0,notes:''},
+  {date:'2026-03-27',exercise:'Hip Abduction A',muscle:'Otro',sets:[{w:10.0,r:10},{w:10.0,r:12},{w:15.0,r:12}],maxW:15.0,volume:400.0,notes:''},
+  {date:'2026-03-27',exercise:'Hip Abduction C',muscle:'Glute/Hip',sets:[{w:70.0,r:15},{w:75.0,r:15},{w:75.0,r:15},{w:85.0,r:15},{w:90.0,r:15}],maxW:90.0,volume:5925.0,notes:''},
+  {date:'2026-03-27',exercise:'Calf',muscle:'Calf',sets:[{w:70.0,r:15},{w:90.0,r:15},{w:105.0,r:15},{w:115.0,r:12}],maxW:115.0,volume:5355.0,notes:''},
+  {date:'2026-03-27',exercise:'Leg Extention',muscle:'Leg',sets:[{w:75.0,r:15},{w:75.0,r:15},{w:85.0,r:15},{w:90.0,r:15}],maxW:90.0,volume:4875.0,notes:''},
+  {date:'2026-03-27',exercise:'V-Squat',muscle:'Quads/Glute',sets:[{w:15.0,r:15},{w:20.0,r:15},{w:25.0,r:15},{w:30.0,r:15}],maxW:30.0,volume:1350.0,notes:''},
+  {date:'2026-03-27',exercise:'Otro',muscle:'0',sets:[{w:20.0,r:12},{w:27.5,r:15},{w:35.0,r:15}],maxW:35.0,volume:1177.5,notes:''},
+  {date:'2026-03-27',exercise:'Empuje Pierna',muscle:'Glute/Leg',sets:[{w:40.0,r:15},{w:42.5,r:15},{w:45.0,r:15},{w:47.0,r:15}],maxW:47.0,volume:2617.5,notes:''},
+  {date:'2026-03-27',exercise:'Abdominales',muscle:'Core',sets:[{w:55.0,r:15},{w:65.0,r:15}],maxW:65.0,volume:1800.0,notes:''},
+  {date:'2026-03-28',exercise:'Chest Press MTS',muscle:'Chest',sets:[{w:15.0,r:15},{w:15.0,r:15},{w:17.5,r:15},{w:17.5,r:15}],maxW:17.5,volume:975.0,notes:''},
+  {date:'2026-03-28',exercise:'Shoulder Press MTS',muscle:'Shoulder',sets:[{w:12.5,r:15},{w:15.0,r:15}],maxW:15.0,volume:412.5,notes:''},
+  {date:'2026-03-29',exercise:'Leg press',muscle:'Leg',sets:[{w:110.0,r:15},{w:125.0,r:15},{w:130.0,r:15},{w:145.0,r:15},{w:150.0,r:15}],maxW:150.0,volume:9900.0,notes:''},
+  {date:'2026-03-29',exercise:'Seated Leg Curl',muscle:'Hamstrings',sets:[{w:50.0,r:15}],maxW:50.0,volume:750.0,notes:''},
+  {date:'2026-03-29',exercise:'Pull Down',muscle:'Back',sets:[{w:50.0,r:15},{w:50.0,r:15},{w:60.0,r:15},{w:65.0,r:15},{w:70.0,r:15}],maxW:70.0,volume:4425.0,notes:''},
+  {date:'2026-03-29',exercise:'Leg Extention',muscle:'Leg',sets:[{w:75.0,r:15},{w:85.0,r:15},{w:90.0,r:15}],maxW:90.0,volume:3750.0,notes:''},
+  {date:'2026-03-29',exercise:'Hip Thrust',muscle:'Glute',sets:[{w:40.0,r:15},{w:60.0,r:15},{w:75.0,r:15},{w:75.0,r:15}],maxW:75.0,volume:3750.0,notes:''},
+  {date:'2026-03-29',exercise:'Calf seated',muscle:'Calf',sets:[{w:10.0,r:15}],maxW:10.0,volume:150.0,notes:''},
+  {date:'2026-04-02',exercise:'Seated Leg Curl',muscle:'Hamstrings',sets:[{w:55.0,r:15},{w:65.0,r:15},{w:35.0,r:15},{w:70.0,r:15}],maxW:70.0,volume:3375.0,notes:''},
+  {date:'2026-04-02',exercise:'Hip Adduction A',muscle:'Glute/Hip',sets:[{w:70.0,r:15},{w:75.0,r:15},{w:80.0,r:15},{w:85.0,r:15}],maxW:85.0,volume:4650.0,notes:''},
+  {date:'2026-04-02',exercise:'Hip Abduction C',muscle:'Glute/Hip',sets:[{w:70.0,r:15},{w:80.0,r:15},{w:85.0,r:15},{w:85.0,r:15}],maxW:85.0,volume:4800.0,notes:''},
+  {date:'2026-04-02',exercise:'Calf seated',muscle:'Calf',sets:[{w:20.0,r:15},{w:20.0,r:15},{w:20.0,r:15},{w:20.0,r:15}],maxW:20.0,volume:1200.0,notes:''},
+  {date:'2026-04-02',exercise:'V-Squat',muscle:'Quads/Glute',sets:[{w:40.0,r:15},{w:50.0,r:15},{w:50.0,r:15},{w:55.0,r:15}],maxW:55.0,volume:2925.0,notes:''},
+  {date:'2026-04-02',exercise:'Row Cable',muscle:'Back',sets:[{w:23.0,r:15},{w:27.0,r:15},{w:27.0,r:15},{w:27.0,r:15}],maxW:27.0,volume:1560.0,notes:''},
+  {date:'2026-04-03',exercise:'Pectoral Fly',muscle:'Chest',sets:[{w:14.5,r:15},{w:17.0,r:15},{w:19.0,r:15},{w:19.0,r:15}],maxW:19.0,volume:1042.5,notes:''},
+  {date:'2026-04-03',exercise:'Rear Deltoide',muscle:'Back',sets:[{w:14.5,r:15},{w:17.0,r:15},{w:19.0,r:15},{w:19.0,r:15}],maxW:19.0,volume:1042.5,notes:''},
+  {date:'2026-04-03',exercise:'Decline Press',muscle:'Chest',sets:[{w:10.0,r:15},{w:12.5,r:15},{w:12.5,r:15},{w:12.5,r:15}],maxW:12.5,volume:712.5,notes:''},
+  {date:'2026-04-03',exercise:'Incline Press',muscle:'Chest',sets:[{w:12.5,r:15},{w:15.0,r:15},{w:15.0,r:15},{w:15.0,r:15}],maxW:15.0,volume:862.5,notes:''},
+  {date:'2026-04-03',exercise:'Front Pull Down Biceps',muscle:'Biceps',sets:[{w:20.0,r:15},{w:22.5,r:15},{w:25.0,r:15},{w:25.0,r:15}],maxW:25.0,volume:1387.5,notes:''},
+  {date:'2026-04-03',exercise:'Triceps extension',muscle:'Triceps',sets:[{w:10.0,r:15},{w:12.5,r:15},{w:12.5,r:15},{w:12.5,r:15}],maxW:12.5,volume:712.5,notes:''},
+  {date:'2026-04-03',exercise:'Arm Extension',muscle:'Triceps',sets:[{w:40.0,r:15},{w:50.0,r:15},{w:55.0,r:15},{w:55.0,r:15}],maxW:55.0,volume:3000.0,notes:''},
+  {date:'2026-04-04',exercise:'Leg Extention',muscle:'Leg',sets:[{w:80.0,r:15},{w:85.0,r:15},{w:90.0,r:15},{w:90.0,r:15}],maxW:90.0,volume:5175.0,notes:''},
+  {date:'2026-04-04',exercise:'Seated Leg Curl',muscle:'Otro',sets:[{w:70.0,r:15},{w:70.0,r:15},{w:70.0,r:15},{w:70.0,r:15}],maxW:70.0,volume:4200.0,notes:''},
+  {date:'2026-04-04',exercise:'Leg press',muscle:'Leg',sets:[{w:110.0,r:15},{w:130.0,r:15},{w:145.0,r:15},{w:145.0,r:15}],maxW:145.0,volume:7950.0,notes:''},
+  {date:'2026-04-04',exercise:'Empuje Pierna',muscle:'Glute/Leg',sets:[{w:40.0,r:15},{w:42.5,r:15},{w:45.0,r:15},{w:45.0,r:15}],maxW:45.0,volume:2587.5,notes:''},
+  {date:'2026-04-04',exercise:'Crunch Oblique',muscle:'Crunch',sets:[{w:5.0,r:30},{w:7.5,r:36},{w:7.5,r:45}],maxW:7.5,volume:757.5,notes:''},
+  {date:'2026-04-05',exercise:'Front Pull Down Back',muscle:'Back',sets:[{w:17.5,r:15},{w:22.5,r:15},{w:25.0,r:15}],maxW:25.0,volume:975.0,notes:''},
+  {date:'2026-04-05',exercise:'Front Pull Down Biceps',muscle:'Biceps',sets:[{w:22.5,r:15},{w:25.0,r:15},{w:25.0,r:15},{w:25.0,r:15}],maxW:25.0,volume:1462.5,notes:''},
+  {date:'2026-04-05',exercise:'Mts High Row',muscle:'Back',sets:[{w:17.5,r:15},{w:22.5,r:15},{w:22.5,r:15}],maxW:22.5,volume:937.5,notes:''},
+  {date:'2026-04-05',exercise:'Chest Press MTS',muscle:'Chest',sets:[{w:15.0,r:15},{w:15.0,r:15},{w:17.5,r:15}],maxW:17.5,volume:712.5,notes:''},
+  {date:'2026-04-06',exercise:'Chin Assistant',muscle:'Back',sets:[{w:32.0,r:12},{w:27.0,r:12},{w:20.0,r:12},{w:20.0,r:12},{w:20.0,r:12}],maxW:32.0,volume:1428.0,notes:'Diferentes agarres'},
+  {date:'2026-04-06',exercise:'Row Cable',muscle:'Back',sets:[{w:27.0,r:12},{w:27.0,r:12},{w:35.0,r:12},{w:35.0,r:12}],maxW:35.0,volume:1488.0,notes:''},
+  {date:'2026-04-06',exercise:'Polea triceps',muscle:'Otro',sets:[{w:20.0,r:12},{w:25.0,r:12},{w:25.0,r:12},{w:25.0,r:12}],maxW:25.0,volume:1140.0,notes:''},
+  {date:'2026-04-06',exercise:'Lat pullover',muscle:'Back',sets:[{w:40.0,r:12},{w:50.0,r:12},{w:50.0,r:12},{w:70.0,r:12}],maxW:70.0,volume:2520.0,notes:''},
+  {date:'2026-04-06',exercise:'Arm Extension',muscle:'Triceps',sets:[{w:55.0,r:12},{w:55.0,r:12},{w:60.0,r:12},{w:65.0,r:8}],maxW:65.0,volume:2560.0,notes:''},
+  {date:'2026-04-06',exercise:'Triceps extension',muscle:'Triceps',sets:[{w:12.5,r:15},{w:12.5,r:15},{w:12.5,r:15},{w:15.0,r:12}],maxW:15.0,volume:742.5,notes:''},
+  {date:'2026-04-07',exercise:'Leg Extention',muscle:'Leg',sets:[{w:80.0,r:15},{w:85.0,r:15},{w:90.0,r:15},{w:90.0,r:15}],maxW:90.0,volume:5175.0,notes:''},
+  {date:'2026-04-07',exercise:'V-Squat',muscle:'Quads/Glute',sets:[{w:40.0,r:15},{w:50.0,r:15},{w:55.0,r:15},{w:55.0,r:15}],maxW:55.0,volume:3000.0,notes:''},
+  {date:'2026-04-07',exercise:'Calf seated',muscle:'Calf',sets:[{w:20.0,r:15},{w:20.0,r:15},{w:22.5,r:15},{w:22.5,r:15}],maxW:22.5,volume:1275.0,notes:''},
+  {date:'2026-04-07',exercise:'Leg press',muscle:'Leg',sets:[{w:145.0,r:15},{w:145.0,r:15},{w:150.0,r:15},{w:150.0,r:15}],maxW:150.0,volume:8850.0,notes:''},
+  {date:'2026-04-07',exercise:'Calf standing',muscle:'Calf',sets:[{w:55.0,r:12},{w:57.5,r:12},{w:60.0,r:12}],maxW:60.0,volume:2070.0,notes:''},
+  {date:'2026-04-07',exercise:'Crunch Oblique',muscle:'Crunch',sets:[{w:7.5,r:45},{w:7.5,r:45},{w:7.5,r:45}],maxW:7.5,volume:1012.5,notes:''},
+  {date:'2026-04-08',exercise:'Seated Leg Curl',muscle:'Hamstrings',sets:[{w:70.0,r:15},{w:70.0,r:15},{w:70.0,r:15},{w:70.0,r:15}],maxW:70.0,volume:4200.0,notes:''},
+  {date:'2026-04-08',exercise:'Empuje Pierna',muscle:'Glute/Leg',sets:[{w:45.0,r:15},{w:47.0,r:15},{w:47.0,r:15}],maxW:47.0,volume:2085.0,notes:''},
+  {date:'2026-04-08',exercise:'Hip Thrust',muscle:'Glute',sets:[{w:60.0,r:12},{w:60.0,r:12},{w:70.0,r:12},{w:70.0,r:12}],maxW:70.0,volume:3120.0,notes:''},
+  {date:'2026-04-08',exercise:'Prone Leg Curl',muscle:'Hamstrings',sets:[{w:30.0,r:24},{w:35.0,r:24},{w:35.0,r:24}],maxW:35.0,volume:2400.0,notes:'A y V'},
+  {date:'2026-04-08',exercise:'Gluteos',muscle:'Glute',sets:[{w:90.0,r:12},{w:90.0,r:12},{w:95.0,r:12},{w:95.0,r:12}],maxW:95.0,volume:4440.0,notes:''},
+  {date:'2026-04-09',exercise:'Decline Press',muscle:'Chest',sets:[{w:12.0,r:15},{w:12.5,r:15},{w:15.0,r:15},{w:15.0,r:12}],maxW:15.0,volume:772.5,notes:''},
+  {date:'2026-04-09',exercise:'Incline Press',muscle:'Chest',sets:[{w:15.0,r:15},{w:15.0,r:15},{w:15.0,r:15},{w:15.0,r:15}],maxW:15.0,volume:900.0,notes:''},
+  {date:'2026-04-09',exercise:'Pectoral Fly',muscle:'Chest',sets:[{w:19.0,r:15},{w:21.5,r:15},{w:24.0,r:15},{w:24.0,r:15}],maxW:24.0,volume:1327.5,notes:''},
+  {date:'2026-04-09',exercise:'Shoulder Press MTS',muscle:'Shoulder',sets:[{w:12.0,r:15},{w:15.0,r:15},{w:17.5,r:15},{w:17.5,r:15}],maxW:17.5,volume:930.0,notes:''},
+  {date:'2026-04-09',exercise:'Overhead shoulder',muscle:'Shoulder',sets:[{w:40.0,r:15},{w:40.0,r:15},{w:40.0,r:15},{w:40.0,r:15}],maxW:40.0,volume:2400.0,notes:''},
+  {date:'2026-04-09',exercise:'Lateral raise',muscle:'Shoulder',sets:[{w:7.5,r:15},{w:7.5,r:15},{w:7.5,r:15},{w:7.5,r:15}],maxW:7.5,volume:450.0,notes:''},
+  {date:'2026-04-10',exercise:'Arm Extension',muscle:'Triceps',sets:[{w:60.0,r:12},{w:65.0,r:12},{w:65.0,r:12},{w:65.0,r:12}],maxW:65.0,volume:3060.0,notes:''},
+  {date:'2026-04-10',exercise:'Front Pull Down Biceps',muscle:'Biceps',sets:[{w:25.0,r:15},{w:25.0,r:15},{w:25.0,r:15},{w:25.0,r:15}],maxW:25.0,volume:1500.0,notes:''},
+  {date:'2026-04-10',exercise:'Triceps extension',muscle:'Triceps',sets:[{w:12.5,r:15},{w:15.0,r:15},{w:15.0,r:15},{w:15.0,r:15}],maxW:15.0,volume:862.5,notes:''},
+  {date:'2026-04-10',exercise:'Curl Biceps',muscle:'Biceps',sets:[{w:7.5,r:12},{w:10.0,r:12},{w:10.0,r:12},{w:10.0,r:12}],maxW:10.0,volume:450.0,notes:''},
+  {date:'2026-04-10',exercise:'Row',muscle:'Back',sets:[{w:70.0,r:12},{w:80.0,r:12}],maxW:80.0,volume:1800.0,notes:''},
+  {date:'2026-04-11',exercise:'Leg press',muscle:'Leg',sets:[{w:130.0,r:15},{w:150.0,r:15},{w:150.0,r:15},{w:155.0,r:15}],maxW:155.0,volume:8775.0,notes:''},
+  {date:'2026-04-11',exercise:'Abdominales',muscle:'Core',sets:[{w:70.0,r:15},{w:75.0,r:15},{w:75.0,r:15},{w:75.0,r:15}],maxW:75.0,volume:4425.0,notes:''},
+  {date:'2026-04-11',exercise:'Hip Adduction A',muscle:'Glute/Hip',sets:[{w:85.0,r:15},{w:85.0,r:15},{w:85.0,r:15},{w:85.0,r:15}],maxW:85.0,volume:5100.0,notes:''},
+  {date:'2026-04-11',exercise:'Hip Abduction C',muscle:'Glute/Hip',sets:[{w:85.0,r:15},{w:85.0,r:15},{w:85.0,r:15},{w:85.0,r:15}],maxW:85.0,volume:5100.0,notes:''},
+  {date:'2026-04-11',exercise:'Empuje Pierna',muscle:'Glute/Leg',sets:[{w:45.0,r:15},{w:47.0,r:15},{w:50.0,r:15},{w:50.0,r:15}],maxW:50.0,volume:2880.0,notes:''},
+  {date:'2026-04-11',exercise:'Calf seated',muscle:'Calf',sets:[{w:20.0,r:15},{w:22.5,r:15},{w:22.5,r:15},{w:22.5,r:15}],maxW:22.5,volume:1312.5,notes:''},
+  {date:'2026-04-11',exercise:'Row Cable',muscle:'Back',sets:[{w:35.0,r:15},{w:35.0,r:15},{w:35.0,r:15},{w:35.0,r:15}],maxW:35.0,volume:2100.0,notes:''},
+  {date:'2026-04-12',exercise:'Front Pull Down Biceps',muscle:'Biceps',sets:[{w:25.0,r:15},{w:25.0,r:15},{w:27.5,r:15},{w:27.5,r:15}],maxW:27.5,volume:1575.0,notes:''},
+  {date:'2026-04-12',exercise:'Arm Extension',muscle:'Triceps',sets:[{w:65.0,r:12},{w:65.0,r:12},{w:65.0,r:12},{w:65.0,r:12}],maxW:65.0,volume:3120.0,notes:''},
+  {date:'2026-04-12',exercise:'Polea triceps',muscle:'Otro',sets:[{w:25.0,r:15},{w:25.0,r:15},{w:25.0,r:15},{w:25.0,r:15}],maxW:25.0,volume:1500.0,notes:''},
+  {date:'2026-04-12',exercise:'Biceps Barra',muscle:'Biceps',sets:[{w:15.0,r:15},{w:15.0,r:15},{w:15.0,r:15},{w:15.0,r:15}],maxW:15.0,volume:900.0,notes:''},
+  {date:'2026-04-14',exercise:'Leg Extention',muscle:'Leg',sets:[{w:90.0,r:15},{w:90.0,r:15},{w:90.0,r:15},{w:90.0,r:15}],maxW:90.0,volume:5400.0,notes:''},
+  {date:'2026-04-14',exercise:'Leg press',muscle:'Leg',sets:[{w:135.0,r:15},{w:150.0,r:15},{w:155.0,r:15},{w:155.0,r:15}],maxW:155.0,volume:8925.0,notes:''},
+  {date:'2026-04-14',exercise:'Pull Down',muscle:'Back',sets:[{w:60.0,r:12},{w:60.0,r:12},{w:65.0,r:12},{w:65.0,r:15}],maxW:65.0,volume:3195.0,notes:'2x neutro 2xsupino'},
+  {date:'2026-04-14',exercise:'Calf seated',muscle:'Calf',sets:[{w:22.5,r:15},{w:22.5,r:15},{w:22.5,r:15},{w:22.5,r:15}],maxW:22.5,volume:1350.0,notes:''},
+  {date:'2026-04-14',exercise:'Seated Leg Curl',muscle:'Hamstrings',sets:[{w:70.0,r:15},{w:70.0,r:15},{w:70.0,r:15},{w:70.0,r:15}],maxW:70.0,volume:4200.0,notes:''},
+  {date:'2026-04-15',exercise:'Gluteos',muscle:'Otro',sets:[{w:90.0,r:15},{w:105.0,r:12},{w:105.0,r:12},{w:105.0,r:12}],maxW:105.0,volume:5130.0,notes:''},
+  {date:'2026-04-15',exercise:'Hip Adduction A',muscle:'Glute/Hip',sets:[{w:85.0,r:15},{w:85.0,r:15},{w:85.0,r:15},{w:85.0,r:15}],maxW:85.0,volume:5100.0,notes:''},
+  {date:'2026-04-15',exercise:'Hip Abduction C',muscle:'Glute/Hip',sets:[{w:85.0,r:15},{w:85.0,r:15},{w:85.0,r:15},{w:85.0,r:15}],maxW:85.0,volume:5100.0,notes:''},
+  {date:'2026-04-15',exercise:'Prone Leg Curl',muscle:'Hamstrings',sets:[{w:35.0,r:24},{w:35.0,r:24},{w:35.0,r:24},{w:35.0,r:24}],maxW:35.0,volume:3360.0,notes:''},
+  {date:'2026-04-15',exercise:'Crunch Oblique',muscle:'Crunch',sets:[{w:7.5,r:45},{w:7.5,r:45},{w:7.5,r:45}],maxW:7.5,volume:1012.5,notes:''},
+  {date:'2026-04-15',exercise:'Calf seated',muscle:'Calf',sets:[{w:22.5,r:15},{w:22.5,r:15},{w:22.5,r:15},{w:22.5,r:15}],maxW:22.5,volume:1350.0,notes:''},
+  {date:'2026-04-16',exercise:'Decline Press',muscle:'Chest',sets:[{w:15.0,r:15},{w:15.0,r:15},{w:15.0,r:15},{w:15.0,r:12}],maxW:15.0,volume:855.0,notes:''},
+  {date:'2026-04-16',exercise:'Overhead shoulder',muscle:'Shoulder',sets:[{w:40.0,r:12},{w:45.0,r:12},{w:45.0,r:12},{w:45.0,r:12}],maxW:45.0,volume:2100.0,notes:''},
+  {date:'2026-04-16',exercise:'Pectoral Fly',muscle:'Chest',sets:[{w:27.5,r:12},{w:27.5,r:12},{w:27.5,r:12},{w:27.5,r:12}],maxW:27.5,volume:1320.0,notes:''},
+  {date:'2026-04-16',exercise:'Triceps extension',muscle:'Triceps',sets:[{w:12.5,r:15},{w:12.5,r:15},{w:12.5,r:15},{w:55.0,r:8}],maxW:55.0,volume:1002.5,notes:''},
+  {date:'2026-04-16',exercise:'Arm Extension',muscle:'Triceps',sets:[{w:65.0,r:15},{w:65.0,r:15},{w:65.0,r:15},{w:65.0,r:15}],maxW:65.0,volume:3900.0,notes:''},
+  {date:'2026-04-16',exercise:'Shoulder Press MTS',muscle:'Shoulder',sets:[{w:17.5,r:12},{w:17.5,r:12},{w:17.5,r:12}],maxW:17.5,volume:630.0,notes:''},
+  {date:'2026-04-18',exercise:'Row Cable',muscle:'Back',sets:[{w:35.0,r:15},{w:35.0,r:15},{w:35.0,r:15},{w:35.0,r:15}],maxW:35.0,volume:2100.0,notes:''},
+  {date:'2026-04-18',exercise:'Front Pull Down Biceps',muscle:'Biceps',sets:[{w:25.0,r:15},{w:27.5,r:15},{w:27.5,r:15},{w:27.5,r:15}],maxW:27.5,volume:1612.5,notes:''},
+  {date:'2026-04-18',exercise:'Pull down pulley',muscle:'Back',sets:[{w:20.0,r:20},{w:27.5,r:15},{w:27.5,r:15},{w:27.5,r:15}],maxW:27.5,volume:1637.5,notes:''},
+  {date:'2026-04-18',exercise:'Polea tríceps alta',muscle:'Triceps',sets:[{w:25.0,r:15},{w:27.0,r:15},{w:27.0,r:15},{w:27.0,r:15}],maxW:27.0,volume:1590.0,notes:''},
+  {date:'2026-04-18',exercise:'Mts High Row',muscle:'Back',sets:[{w:22.5,r:15},{w:22.5,r:15},{w:22.5,r:15},{w:22.5,r:15}],maxW:22.5,volume:1350.0,notes:''},
+  {date:'2026-04-19',exercise:'Leg Extention',muscle:'Leg',sets:[{w:90.0,r:15},{w:90.0,r:15},{w:95.0,r:15},{w:95.0,r:15}],maxW:95.0,volume:5550.0,notes:''},
+  {date:'2026-04-19',exercise:'Hip Thrust',muscle:'Glute',sets:[{w:50.0,r:15},{w:55.0,r:15},{w:70.0,r:12},{w:70.0,r:12}],maxW:70.0,volume:3255.0,notes:''},
+  {date:'2026-04-19',exercise:'V-Squat',muscle:'Quads/Glute',sets:[{w:55.0,r:20},{w:60.0,r:12},{w:60.0,r:12},{w:60.0,r:12}],maxW:60.0,volume:3260.0,notes:''},
+  {date:'2026-04-19',exercise:'Calf seated',muscle:'Calf',sets:[{w:22.5,r:15},{w:22.5,r:15},{w:22.5,r:15},{w:22.5,r:15}],maxW:22.5,volume:1350.0,notes:''},
+  {date:'2026-04-19',exercise:'Empuje Pierna',muscle:'Glute/Leg',sets:[{w:50.0,r:15},{w:50.0,r:15},{w:50.0,r:15},{w:50.0,r:15}],maxW:50.0,volume:3000.0,notes:''},
+  {date:'2026-04-21',exercise:'Leg Extention',muscle:'Leg',sets:[{w:90.0,r:15},{w:95.0,r:15},{w:95.0,r:15},{w:95.0,r:15}],maxW:95.0,volume:5625.0,notes:''},
+  {date:'2026-04-21',exercise:'V-Squat',muscle:'Quads/Glute',sets:[{w:60.0,r:15},{w:60.0,r:12},{w:60.0,r:12},{w:60.0,r:12}],maxW:60.0,volume:3060.0,notes:''},
+  {date:'2026-04-21',exercise:'Calf seated',muscle:'Calf',sets:[{w:22.5,r:15},{w:22.5,r:15},{w:22.5,r:15}],maxW:22.5,volume:1012.5,notes:''},
+  {date:'2026-04-21',exercise:'Row Cable',muscle:'Back',sets:[{w:35.0,r:15},{w:35.0,r:15},{w:35.0,r:15},{w:42.5,r:15}],maxW:42.5,volume:2212.5,notes:''},
+  {date:'2026-04-21',exercise:'Abdominales',muscle:'Core',sets:[{w:75.0,r:15},{w:75.0,r:15},{w:80.0,r:15},{w:80.0,r:15}],maxW:80.0,volume:4650.0,notes:''},
+  {date:'2026-04-22',exercise:'Seated Leg Curl',muscle:'Hamstrings',sets:[{w:70.0,r:15},{w:70.0,r:15},{w:75.0,r:15},{w:75.0,r:15}],maxW:75.0,volume:4350.0,notes:''},
+  {date:'2026-04-22',exercise:'Hip Adduction A',muscle:'Glute/Hip',sets:[{w:85.0,r:15},{w:85.0,r:15},{w:90.0,r:15},{w:95.0,r:15}],maxW:95.0,volume:5325.0,notes:''},
+  {date:'2026-04-22',exercise:'Hip Abduction C',muscle:'Glute/Hip',sets:[{w:85.0,r:15},{w:85.0,r:15},{w:85.0,r:15},{w:90.0,r:15}],maxW:90.0,volume:5175.0,notes:''},
+  {date:'2026-04-22',exercise:'Hip Thrust',muscle:'Glute',sets:[{w:70.0,r:12},{w:75.0,r:12},{w:75.0,r:12},{w:75.0,r:12}],maxW:75.0,volume:3540.0,notes:''},
+  {date:'2026-04-22',exercise:'Calf standing',muscle:'Calf',sets:[{w:60.0,r:12},{w:65.0,r:12},{w:65.0,r:12},{w:65.0,r:12}],maxW:65.0,volume:3060.0,notes:''},
+  {date:'2026-04-22',exercise:'Back Extension',muscle:'Back',sets:[{w:70.0,r:12},{w:75.0,r:12},{w:80.0,r:12},{w:80.0,r:12}],maxW:80.0,volume:3660.0,notes:''},
+  {date:'2026-04-23',exercise:'Polea tríceps alta',muscle:'Triceps',sets:[{w:25.0,r:15},{w:30.0,r:15},{w:30.0,r:15},{w:30.0,r:15}],maxW:30.0,volume:1725.0,notes:''},
+  {date:'2026-04-23',exercise:'Polea tríceps media',muscle:'Triceps',sets:[{w:22.0,r:15},{w:25.0,r:15},{w:25.0,r:15},{w:25.0,r:15}],maxW:25.0,volume:1455.0,notes:''},
+  {date:'2026-04-23',exercise:'Barra shoulder',muscle:'Shoulder',sets:[{w:15.0,r:15},{w:15.0,r:15},{w:15.0,r:15},{w:15.0,r:15}],maxW:15.0,volume:900.0,notes:''},
+  {date:'2026-04-23',exercise:'Chest Press MTS',muscle:'Chest',sets:[{w:15.0,r:15},{w:17.5,r:15},{w:17.5,r:15},{w:17.5,r:15}],maxW:17.5,volume:1012.5,notes:''},
+  {date:'2026-04-23',exercise:'Shoulder (calf)',muscle:'Shoulder',sets:[{w:5.0,r:12},{w:5.0,r:12},{w:7.5,r:12},{w:7.5,r:15}],maxW:7.5,volume:322.5,notes:''},
+  {date:'2026-04-23',exercise:'Row',muscle:'Back',sets:[{w:75.0,r:12},{w:80.0,r:12},{w:80.0,r:12},{w:80.0,r:15}],maxW:80.0,volume:4020.0,notes:''},
+  {date:'2026-04-24',exercise:'Pectoral Fly',muscle:'Chest',sets:[{w:26.0,r:15},{w:28.5,r:12},{w:28.5,r:12},{w:28.5,r:12}],maxW:28.5,volume:1416.0,notes:''},
+  {date:'2026-04-24',exercise:'Rear Deltoide',muscle:'Back',sets:[{w:21.5,r:12},{w:21.5,r:12},{w:24.0,r:12},{w:24.0,r:12}],maxW:24.0,volume:1092.0,notes:''},
+  {date:'2026-04-24',exercise:'Lateral raise',muscle:'Shoulder',sets:[{w:7.5,r:15},{w:7.5,r:15},{w:10.0,r:15},{w:10.0,r:15}],maxW:10.0,volume:525.0,notes:''},
+  {date:'2026-04-24',exercise:'Decline Press',muscle:'Chest',sets:[{w:12.5,r:7},{w:12.5,r:15},{w:12.5,r:15},{w:15.0,r:15}],maxW:15.0,volume:687.5,notes:''},
+  {date:'2026-04-24',exercise:'Incline Press',muscle:'Chest',sets:[{w:15.0,r:15},{w:15.0,r:15},{w:15.0,r:15},{w:17.5,r:15}],maxW:17.5,volume:937.5,notes:''},
+  {date:'2026-04-25',exercise:'Row MTS',muscle:'Back',sets:[{w:12.5,r:12},{w:17.5,r:12},{w:20.0,r:12}],maxW:20.0,volume:600.0,notes:''},
+  {date:'2026-04-25',exercise:'Front Pull Down Biceps',muscle:'Biceps',sets:[{w:27.5,r:15},{w:27.5,r:15},{w:27.5,r:15},{w:27.5,r:15}],maxW:27.5,volume:1650.0,notes:''},
+  {date:'2026-04-25',exercise:'Leg Extention',muscle:'Leg',sets:[{w:85.0,r:20},{w:90.0,r:15},{w:95.0,r:15},{w:95.0,r:15}],maxW:95.0,volume:5900.0,notes:''},
+  {date:'2026-04-25',exercise:'Leg press',muscle:'Leg',sets:[{w:150.0,r:15},{w:155.0,r:15},{w:155.0,r:15},{w:160.0,r:15}],maxW:160.0,volume:9300.0,notes:''},
+  {date:'2026-04-25',exercise:'Abdominales',muscle:'Core',sets:[{w:80.0,r:15},{w:80.0,r:15},{w:80.0,r:15},{w:80.0,r:15}],maxW:80.0,volume:4800.0,notes:''},
+  {date:'2026-04-25',exercise:'Prone Leg Curl',muscle:'Hamstrings',sets:[{w:35.0,r:24},{w:40.0,r:24},{w:35.0,r:24},{w:40.0,r:24}],maxW:40.0,volume:3600.0,notes:''},
+  {date:'2026-04-25',exercise:'Calf seated',muscle:'Calf',sets:[{w:22.5,r:15},{w:22.5,r:15},{w:22.5,r:15},{w:22.5,r:15}],maxW:22.5,volume:1350.0,notes:''},
+  {date:'2026-04-28',exercise:'Front Pull Down Biceps',muscle:'Biceps',sets:[{w:27.5,r:15},{w:27.5,r:15},{w:27.5,r:15},{w:27.5,r:15}],maxW:27.5,volume:1650.0,notes:''},
+  {date:'2026-04-28',exercise:'Overhead shoulder',muscle:'Shoulder',sets:[{w:40.0,r:12},{w:45.0,r:12},{w:45.0,r:12},{w:50.0,r:12}],maxW:50.0,volume:2160.0,notes:''},
+  {date:'2026-04-28',exercise:'Arm Extension',muscle:'Triceps',sets:[{w:65.0,r:15},{w:65.0,r:15},{w:65.0,r:15},{w:65.0,r:15}],maxW:65.0,volume:3900.0,notes:''},
+  {date:'2026-04-28',exercise:'Seated Dip',muscle:'Chest',sets:[{w:30.0,r:12},{w:30.0,r:12},{w:30.0,r:12},{w:30.0,r:12}],maxW:30.0,volume:1440.0,notes:''},
+  {date:'2026-04-28',exercise:'Chin Assistant',muscle:'Back',sets:[{w:27.0,r:12},{w:25.0,r:12},{w:22.0,r:12},{w:22.0,r:12}],maxW:27.0,volume:1152.0,notes:''},
+  {date:'2026-04-29',exercise:'Leg Extention',muscle:'Leg',sets:[{w:90.0,r:15},{w:90.0,r:15},{w:95.0,r:15},{w:95.0,r:15}],maxW:95.0,volume:5550.0,notes:''},
+  {date:'2026-04-29',exercise:'Leg press',muscle:'Leg',sets:[{w:155.0,r:15},{w:160.0,r:15},{w:160.0,r:15},{w:165.0,r:15}],maxW:165.0,volume:9600.0,notes:''},
+  {date:'2026-04-29',exercise:'Calf seated',muscle:'Calf',sets:[{w:22.5,r:12},{w:22.5,r:12},{w:25.0,r:15},{w:25.0,r:15}],maxW:25.0,volume:1290.0,notes:''},
+  {date:'2026-04-29',exercise:'Empuje Pierna',muscle:'Glute/Leg',sets:[{w:55.0,r:15},{w:55.0,r:15},{w:55.0,r:15},{w:55.0,r:15}],maxW:55.0,volume:3300.0,notes:''},
+  {date:'2026-04-29',exercise:'Crunch',muscle:'Core',sets:[{w:15.0,r:12},{w:20.0,r:12},{w:22.5,r:12},{w:22.5,r:12}],maxW:22.5,volume:960.0,notes:''},
+  {date:'2026-04-30',exercise:'Pull Down',muscle:'Back',sets:[{w:60.0,r:20},{w:60.0,r:15},{w:65.0,r:12},{w:65.0,r:12}],maxW:65.0,volume:3660.0,notes:''},
+  {date:'2026-04-30',exercise:'Pectoral Fly',muscle:'Chest',sets:[{w:27.0,r:12},{w:27.0,r:12},{w:27.0,r:12},{w:27.0,r:12}],maxW:27.0,volume:1296.0,notes:''},
+  {date:'2026-05-01',exercise:'Seated Dip',muscle:'Chest',sets:[{w:30.0,r:12},{w:30.0,r:12},{w:30.0,r:12},{w:30.0,r:12}],maxW:30.0,volume:1440.0,notes:''},
+  {date:'2026-05-01',exercise:'Otro',muscle:'0',sets:[{w:10.0,r:12},{w:10.0,r:12},{w:10.0,r:12},{w:10.0,r:12}],maxW:10.0,volume:480.0,notes:''},
+  {date:'2026-05-01',exercise:'Curl Biceps',muscle:'Biceps',sets:[{w:7.5,r:12},{w:7.5,r:12},{w:7.5,r:12},{w:7.5,r:12}],maxW:7.5,volume:360.0,notes:''},
+  {date:'2026-05-01',exercise:'Crunch Oblique',muscle:'Crunch',sets:[{w:7.5,r:45},{w:7.5,r:45},{w:7.5,r:45},{w:7.5,r:45}],maxW:7.5,volume:1350.0,notes:''},
+  {date:'2026-05-01',exercise:'Polea tríceps media',muscle:'Triceps',sets:[{w:25.0,r:15},{w:25.0,r:15},{w:25.0,r:15},{w:25.0,r:15}],maxW:25.0,volume:1500.0,notes:''},
+  {date:'2026-05-02',exercise:'Hip Adduction A',muscle:'Glute/Hip',sets:[{w:90.0,r:15},{w:95.0,r:15},{w:95.0,r:15},{w:95.0,r:15}],maxW:95.0,volume:5625.0,notes:''},
+  {date:'2026-05-02',exercise:'Hip Abduction C',muscle:'Glute/Hip',sets:[{w:85.0,r:15},{w:90.0,r:15},{w:95.0,r:15},{w:95.0,r:15}],maxW:95.0,volume:5475.0,notes:''},
+  {date:'2026-05-02',exercise:'Seated Leg Curl',muscle:'Hamstrings',sets:[{w:70.0,r:15},{w:75.0,r:15},{w:75.0,r:15},{w:75.0,r:15}],maxW:75.0,volume:4425.0,notes:''},
+  {date:'2026-05-02',exercise:'Leg press',muscle:'Leg',sets:[{w:160.0,r:15},{w:165.0,r:15},{w:165.0,r:15},{w:165.0,r:15}],maxW:165.0,volume:9825.0,notes:''},
+  {date:'2026-05-05',exercise:'Front Pull Down Biceps',muscle:'Biceps',sets:[{w:27.5,r:15},{w:27.5,r:15},{w:27.5,r:15},{w:27.5,r:15}],maxW:27.5,volume:1650.0,notes:''},
+  {date:'2026-05-05',exercise:'Pectoral Fly',muscle:'Chest',sets:[{w:27.0,r:15},{w:27.0,r:15},{w:30.0,r:15},{w:30.0,r:15}],maxW:30.0,volume:1710.0,notes:''},
+  {date:'2026-05-05',exercise:'Row Cable',muscle:'Back',sets:[{w:35.0,r:15},{w:35.0,r:15},{w:42.5,r:15},{w:42.5,r:15}],maxW:42.5,volume:2325.0,notes:''},
+  {date:'2026-05-05',exercise:'Lateral raise',muscle:'Shoulder',sets:[{w:10.0,r:15},{w:10.0,r:15},{w:10.0,r:15},{w:10.0,r:15}],maxW:10.0,volume:600.0,notes:''}
+];
+
+let currentUser = null;
+let workouts = [];
+let customExercises = {};
+let setCount = 3;
+let muscleChartInst = null;
+let progressChartInst = null;
+let editingExercise = null;
+let authMode = 'login';
+let dataSeeded = false;
+
+// ── AUTH SUBMIT ───────────────────────────────────
+
+async function submitAuth() {
+  const email = document.getElementById('auth-email').value.trim();
+  const pass  = document.getElementById('auth-pass').value;
+  const btn   = document.getElementById('auth-btn');
+  const err   = document.getElementById('auth-err');
+  if (!email || !pass) { err.textContent = 'Rellena email y contraseña'; return; }
+  btn.disabled = true; btn.textContent = '...';
+  err.textContent = '';
+  try {
+    if (authMode === 'login') {
+      await signInWithEmailAndPassword(getAuth(), email, pass);
+    } else {
+      await createUserWithEmailAndPassword(getAuth(), email, pass);
+    }
+  } catch(e) {
+    btn.disabled = false; btn.textContent = authMode === 'login' ? 'Entrar' : 'Crear cuenta';
+    if (e.code === 'auth/invalid-credential' || e.code === 'auth/wrong-password' || e.code === 'auth/user-not-found') {
+      err.textContent = 'Email o contraseña incorrectos';
+    } else if (e.code === 'auth/email-already-in-use') {
+      err.textContent = 'Este email ya tiene cuenta — usa Entrar';
+    } else if (e.code === 'auth/weak-password') {
+      err.textContent = 'Contraseña muy corta (mínimo 6 caracteres)';
+    } else {
+      err.textContent = e.message;
+    }
+  }
+}
+
+function toggleUserMenu() {
+  const menu = document.getElementById('user-menu');
+  menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+}
+document.addEventListener('click', e => {
+  const menu = document.getElementById('user-menu');
+  if (!menu) return;
+  if (!e.target.closest('#user-btn') && !e.target.closest('#user-menu')) {
+    menu.style.display = 'none';
+  }
+});
+
+async function signOut() {
+  workouts = []; customExercises = {}; bodyMetrics = [];
+  currentUser = null;
+  document.getElementById('app-screen').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+  document.getElementById('user-menu').style.display = 'none';
+  document.getElementById('auth-email').value = '';
+  document.getElementById('auth-pass').value = '';
+  try { await fbSignOut(getAuth()); } catch(e) {}
+}
+
+// Firebase auth state listener - handles session persistence automatically
+onAuthStateChanged(getAuth(), async (user) => {
+  const btn = document.getElementById('auth-btn');
+  if (btn) { btn.disabled = false; btn.textContent = authMode === 'login' ? 'Entrar' : 'Crear cuenta'; }
+  if (user) {
+    currentUser = user;
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app-screen').style.display = 'block';
+    document.getElementById('user-btn').textContent = user.email.split('@')[0];
+    const ed = document.getElementById('user-email-display');
+    if (ed) ed.textContent = user.email;
+    await loadData();
+    initApp();
+  } else {
+    document.getElementById('auth-screen').style.display = 'flex';
+    document.getElementById('app-screen').style.display = 'none';
+  }
+});
+
+// ── DATA ──────────────────────────────────────────
+async function loadData() {
+  try {
+    const [wData, eData, bData] = await Promise.all([
+      dbSelect('workouts', currentUser.uid),
+      dbSelect('custom_exercises', currentUser.uid),
+      dbSelect('body_metrics', currentUser.uid)
+    ]);
+    console.log('loadData: workouts=', wData.length, 'custom=', eData.length, 'body=', bData.length);
+    workouts = wData.map(r => ({
+      id: r.id, date: r.date, exercise: r.exercise, muscle: r.muscle || 'Otro',
+      sets: r.sets || [], maxW: r.max_w, volume: r.volume, notes: r.notes || ''
+    }));
+    customExercises = {};
+    eData.forEach(r => { customExercises[r.name] = r.muscle; });
+    bodyMetrics = bData;
+  } catch(e) {
+    console.error('loadData error:', e.message, e.code);
+    workouts = []; customExercises = {}; bodyMetrics = [];
+  }
+}
+
+async function saveCustomExToDB(name, muscle) {
+  await dbUpsertCustomEx(name, muscle, currentUser.uid);
+}
+
+async function deleteCustomExFromDB(name) {
+  const q = query(collection(getDb(), 'custom_exercises'), where('user_id','==',currentUser.uid), where('name','==',name));
+  const snap = await getDocs(q);
+  snap.docs.forEach(d => deleteDoc(doc(getDb(), 'custom_exercises', d.id)));
+}
+
+// ── APP INIT ──────────────────────────────────────
+function initApp() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('log-date').value = today;
+  document.getElementById('log-date').max = today;
+  const bodyDate = document.getElementById('body-date');
+  if (bodyDate) { bodyDate.value = today; bodyDate.max = today; }
+  if (savedHeight) { const h = document.getElementById('body-height'); if (h) h.placeholder = savedHeight; }
+  document.getElementById('today-label').textContent = new Date().toLocaleDateString('es-ES', {weekday:'long', day:'numeric', month:'long'});
+  const streak = calcStreak();
+  if (streak > 1) document.getElementById('streak-badge').innerHTML = '<span class="streak">🔥 ' + streak + ' días</span>';
+  setUnit(currentUnit);
+  refreshSelects();
+  renderSets();
+  renderTodayWorkouts();
+  renderHistory();
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show';
+  setTimeout(() => t.className = 'toast', 2600);
+}
+
+function isPR(w) {
+  const prev = workouts.filter(x => x.exercise === w.exercise && x.date < w.date);
+  if (!prev.length) return false;
+  return w.maxW > Math.max(...prev.map(x => x.maxW));
+}
+
+function calcStreak() {
+  const dates = [...new Set(workouts.map(w => w.date))].sort().reverse();
+  let streak = 0, prev = null;
+  for (const d of dates) {
+    if (!prev) { streak = 1; prev = new Date(d); continue; }
+    const diff = (prev - new Date(d)) / 86400000;
+    if (diff <= 2) { streak++; prev = new Date(d); } else break;
+  }
+  return streak;
+}
+
+let deletedBaseExercises = JSON.parse(localStorage.getItem('gym_deleted_base') || '[]');
+
+function getAllExercises() {
+  const all = Object.assign({}, EXERCISES, customExercises);
+  // Remove deleted base exercises
+  deletedBaseExercises.forEach(name => { if (!customExercises[name]) delete all[name]; });
+  workouts.forEach(w => { if (w.exercise && !all[w.exercise]) all[w.exercise] = w.muscle || 'Otro'; });
+  return all;
+}
+
+function refreshSelects() {
+  const all = getAllExercises();
+  const exList = Object.keys(all).filter(k => k.trim()).sort((a,b) => a.localeCompare(b));
+  ['hist-ex-filter'].forEach(id => {
+    const sel = document.getElementById(id);
+    const prev = sel.value;
+    const ph = id === 'hist-ex-filter' ? 'Todos los ejercicios' : 'Seleccionar...';
+    sel.innerHTML = '<option value="">' + ph + '</option>';
+    exList.forEach(e => { const o = document.createElement('option'); o.value = e; o.textContent = e + (customExercises[e] ? ' ✦' : ''); sel.appendChild(o); });
+    if (prev) sel.value = prev;
+  });
+  const muscles = [...new Set(Object.values(all))].filter(Boolean).sort();
+  const ms = document.getElementById('hist-mu-filter');
+  const prevM = ms.value;
+  ms.innerHTML = '<option value="">Todos los grupos</option>';
+  muscles.forEach(m => { const o = document.createElement('option'); o.value = m; o.textContent = m; ms.appendChild(o); });
+  if (prevM) ms.value = prevM;
+}
+
+// ── SETS ──────────────────────────────────────────
+function renderSets() {
+  const c = document.getElementById('sets-container'); c.innerHTML = '';
+  for (let i = 1; i <= setCount; i++) {
+    c.innerHTML += '<div class="set-row"><div class="set-num">' + i + '</div><input type="number" id="w' + i + '" placeholder="0" step="0.5" min="0"><input type="number" id="r' + i + '" placeholder="0" min="0"><button class="set-del" onclick="removeSet(' + i + ')"><i class="ti ti-x"></i></button></div>';
+  }
+}
+function addSet() { setCount = Math.min(setCount+1, 8); renderSets(); }
+function removeSet(i) {
+  if (setCount <= 1) return;
+  const sets = getSets(); setCount = Math.max(setCount-1,1); renderSets();
+  sets.splice(i-1,1);
+  sets.slice(0,setCount).forEach((s,idx) => {
+    const wi = document.getElementById('w'+(idx+1)); const ri = document.getElementById('r'+(idx+1));
+    if (wi) wi.value = s.w||''; if (ri) ri.value = s.r||'';
+  });
+}
+function getSets() {
+  const sets = [];
+  for (let i = 1; i <= setCount; i++) {
+    const w = parseFloat(document.getElementById('w'+i)?.value)||0;
+    const r = parseInt(document.getElementById('r'+i)?.value)||0;
+    if (w>0 && r>0) {
+      // Always store in kg internally
+      const wKg = currentUnit === 'lb' ? Math.round(w / 2.20462 * 100) / 100 : w;
+      sets.push({w: wKg, r});
+    }
+  }
+  return sets;
+}
+
+// ── SAVE WORKOUT ──────────────────────────────────
+async function saveWorkout() {
+  const date = document.getElementById('log-date').value;
+  const exercise = document.getElementById('log-exercise').value || document.getElementById('log-exercise-input').value.trim();
+  const notes = document.getElementById('log-notes').value.trim();
+  if (!date || !exercise) { toast('⚠ Selecciona fecha y ejercicio'); return; }
+  const sets = getSets();
+  if (!sets.length) { toast('⚠ Agrega al menos un set'); return; }
+  const maxW = Math.max(...sets.map(s => s.w));
+  const volume = sets.reduce((s,x) => s+x.w*x.r, 0);
+  const muscle = getAllExercises()[exercise] || 'Otro';
+  const w = {date, exercise, muscle, sets, maxW, volume: Math.round(volume*10)/10, notes};
+
+  const btn = document.getElementById('save-btn');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+
+  try {
+    const saved = await dbInsert('workouts', {
+      user_id: currentUser.uid, date: w.date, exercise: w.exercise, muscle: w.muscle,
+      sets: w.sets, max_w: w.maxW, volume: w.volume, notes: w.notes
+    });
+    console.log('saveWorkout saved:', saved.id);
+    w.id = saved.id;
+  } catch(e) {
+    console.error('saveWorkout error:', e);
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-device-floppy"></i> Guardar entreno';
+    toast('❌ Error: ' + e.message);
+    return;
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<i class="ti ti-device-floppy"></i> Guardar entreno';
+  workouts.push(w);
+  const pr = isPR(w);
+  toast(pr ? '🏆 PR! ' + exercise + ' — ' + disp(maxW) + unitLabel() : '✓ ' + exercise + ' — ' + disp(maxW) + unitLabel());
+  document.getElementById('log-exercise').value = '';
+  document.getElementById('log-exercise-input').value = '';
+  document.getElementById('log-notes').value = '';
+  setCount = 3; renderSets();
+  renderTodayWorkouts(); renderHistory();
+}
+
+// ── RENDER FUNCTIONS ──────────────────────────────
+function renderTodayWorkouts() {
+  const date = document.getElementById('log-date').value;
+  const todays = workouts.filter(w => w.date === date);
+  const c = document.getElementById('today-workouts');
+  if (!todays.length) { c.innerHTML = ''; return; }
+  let html = '<div class="card"><div class="card-title">Hoy</div>';
+  todays.forEach(w => {
+    const pr = isPR(w);
+    const setStr = w.sets.map(s => disp(s.w)+'×'+s.r).join(' ');
+    html += '<div class="log-item"><div style="flex:1;"><div class="log-name">' + w.exercise + (pr ? '<span class="pr-badge">PR</span>' : '') + '</div><div class="log-meta">' + setStr + '</div></div><div class="log-right" style="display:flex;align-items:center;gap:8px;"><div><div class="log-max">' + disp(w.maxW) + unitLabel() + '</div><div class="muscle-tag">' + w.muscle + '</div></div><button class="delete-workout-btn" onclick="deleteWorkout(\'' + w.id + '\')" title="Eliminar"><i class="ti ti-trash"></i></button></div></div>';
+  });
+  c.innerHTML = html + '</div>';
+}
+
+function renderHistory() {
+  const exF = document.getElementById('hist-ex-filter').value;
+  const muF = document.getElementById('hist-mu-filter').value;
+  let data = [...workouts].filter(w => (!exF||w.exercise===exF) && (!muF||w.muscle===muF)).sort((a,b) => b.date.localeCompare(a.date));
+  const c = document.getElementById('history-list');
+  if (!data.length) { c.innerHTML = '<div class="empty"><i class="ti ti-mood-empty"></i>Sin registros</div>'; return; }
+  let html = '', last = '';
+  data.slice(0,60).forEach(w => {
+    if (w.date !== last) {
+      if (last) html += '</div>';
+      const d = new Date(w.date+'T12:00:00');
+      html += '<div class="day-label">' + d.toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'}) + '</div><div class="card" style="padding:0 16px;">';
+      last = w.date;
+    }
+    const pr = isPR(w);
+    const setStr = w.sets.map(s => disp(s.w)+'×'+s.r).join(' · ');
+    const mc = MUSCLE_COLORS[w.muscle] || '#555';
+    html += '<div class="log-item"><div style="flex:1;min-width:0;"><div class="log-name">' + w.exercise + (pr ? '<span class="pr-badge">PR</span>' : '') + '</div><div class="log-meta">' + setStr + (w.notes ? ' · '+w.notes : '') + '</div></div><div class="log-right" style="display:flex;align-items:center;gap:8px;"><div><div class="log-max">' + disp(w.maxW) + unitLabel() + '</div><div style="font-size:10px;color:' + mc + ';font-family:DM Mono,monospace;">' + w.muscle + '</div></div><button class="delete-workout-btn" onclick="deleteWorkout(\'' + w.id + '\')" title="Eliminar"><i class="ti ti-trash"></i></button></div></div>';
+  });
+  if (last) html += '</div>';
+  c.innerHTML = html;
+}
+
+function renderProgress() {
+  const ex = document.getElementById('prog-exercise').value;
+  const empty = document.getElementById('prog-empty');
+  const statsDiv = document.getElementById('prog-stats');
+  const chartCard = document.getElementById('prog-chart-card');
+  const setsCard = document.getElementById('prog-sets-card');
+  if (!ex) { empty.style.display='block'; statsDiv.style.display='none'; chartCard.style.display='none'; setsCard.style.display='none'; return; }
+  empty.style.display = 'none';
+  const data = workouts.filter(w => w.exercise===ex).sort((a,b) => a.date.localeCompare(b.date));
+  if (!data.length) { empty.style.display='block'; empty.innerHTML='<i class="ti ti-mood-empty"></i>Sin datos para este ejercicio'; return; }
+  const maxEver = Math.max(...data.map(d => d.maxW));
+  const improvement = +(maxEver - data[0].maxW).toFixed(1);
+  statsDiv.style.display = 'grid';
+  statsDiv.innerHTML =
+    '<div class="metric"><div class="metric-label">Máximo actual</div><div class="metric-value green">' + disp(maxEver) + unitLabel() + '</div></div>' +
+    '<div class="metric"><div class="metric-label">Progreso total</div><div class="metric-value" style="color:' + (improvement>=0?'var(--accent)':'var(--red)') + ';">' + (improvement>=0?'+':'') + disp(improvement) + unitLabel() + '</div></div>' +
+    '<div class="metric"><div class="metric-label">Sesiones</div><div class="metric-value blue">' + data.length + '</div></div>' +
+    '<div class="metric"><div class="metric-label">Volumen prom</div><div class="metric-value">' + Math.round(data.reduce((s,d)=>s+d.volume,0)/data.length) + '</div></div>';
+  chartCard.style.display = 'block';
+  if (progressChartInst) progressChartInst.destroy();
+  progressChartInst = new Chart(document.getElementById('prog-chart'), {
+    type: 'line',
+    data: {
+      labels: data.map(d => { const dt=new Date(d.date+'T12:00:00'); return dt.toLocaleDateString('es-ES',{day:'numeric',month:'short'}); }),
+      datasets: [{
+        label: 'Peso máx', data: data.map(d => d.maxW),
+        borderColor: '#c8f135', backgroundColor: 'rgba(200,241,53,0.04)',
+        tension: 0.35,
+        pointBackgroundColor: data.map((d,i) => {
+          if (i===0) return '#888';
+          const prev = data[i-1].maxW;
+          if (d.maxW > prev) return '#c8f135';
+          if (d.maxW < prev) return '#ff5a5a';
+          return '#ffd166';
+        }),
+        pointRadius: 5, pointBorderColor: 'transparent', borderWidth: 2
+      }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{ticks:{color:'#666',font:{size:11,family:'DM Mono'},maxRotation:45},grid:{color:'rgba(255,255,255,0.04)'}},
+        y:{ticks:{color:'#666',font:{size:11,family:'DM Mono'},callback:v=>disp(v)+unitLabel()},grid:{color:'rgba(255,255,255,0.04)'}}
+      }
+    }
+  });
+  setsCard.style.display = 'block';
+  document.getElementById('prog-sessions').innerHTML = data.slice(-5).reverse().map(w => {
+    const pr = isPR(w); const d = new Date(w.date+'T12:00:00');
+    return '<div class="log-item"><div><div class="log-name">' + d.toLocaleDateString('es-ES',{day:'numeric',month:'short'}) + (pr?'<span class="pr-badge">PR</span>':'') + '</div><div class="log-meta">' + w.sets.map(s=>disp(s.w)+'×'+s.r).join(' · ') + '</div></div><div class="log-right"><div class="log-max">' + disp(w.maxW) + unitLabel() + '</div></div></div>';
+  }).join('');
+}
+
+function renderStats() {
+  const totalSessions = [...new Set(workouts.map(w => w.date))].length;
+  const prs = workouts.filter(w => isPR(w)).length;
+  const totalVol = workouts.reduce((s,w) => s+(w.volume||0), 0);
+  const uniqueEx = [...new Set(workouts.map(w => w.exercise))].length;
+  document.getElementById('stats-metrics').innerHTML =
+    '<div class="metric"><div class="metric-label">Sesiones</div><div class="metric-value">' + totalSessions + '</div></div>' +
+    '<div class="metric"><div class="metric-label">Ejercicios</div><div class="metric-value blue">' + uniqueEx + '</div></div>' +
+    '<div class="metric"><div class="metric-label">PRs</div><div class="metric-value green">' + prs + '</div></div>' +
+    '<div class="metric"><div class="metric-label">Volumen total</div><div class="metric-value">' + Math.round(totalVol/1000) + 'k</div></div>';
+  const ago14 = new Date(); ago14.setDate(ago14.getDate()-14);
+  const recent = workouts.filter(w => new Date(w.date) >= ago14);
+  const byMuscle = {};
+  recent.forEach(w => { byMuscle[w.muscle] = (byMuscle[w.muscle]||0)+(w.volume||0); });
+  const sorted = Object.entries(byMuscle).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  if (muscleChartInst) muscleChartInst.destroy();
+  if (sorted.length) {
+    muscleChartInst = new Chart(document.getElementById('muscle-chart'), {
+      type:'bar', indexAxis:'y',
+      data:{ labels:sorted.map(e=>e[0]), datasets:[{data:sorted.map(e=>Math.round(e[1])),backgroundColor:sorted.map(e=>MUSCLE_COLORS[e[0]]||'#555'),borderRadius:4}] },
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#666',font:{size:11}},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#aaa',font:{size:12}},grid:{display:false}}}}
+    });
+  }
+  const prMap = {};
+  workouts.filter(w=>isPR(w)).forEach(w => { if (!prMap[w.exercise]||w.maxW>prMap[w.exercise].maxW) prMap[w.exercise]=w; });
+  const prList = Object.values(prMap).sort((a,b)=>b.maxW-a.maxW).slice(0,12);
+  document.getElementById('pr-list').innerHTML = prList.length
+    ? prList.map(w => '<div class="pr-row"><div><div class="pr-ex">'+w.exercise+'</div><div class="pr-date">'+w.date+'</div></div><div class="pr-weight">'+disp(w.maxW)+unitLabel()+'</div></div>').join('')
+    : '<div class="empty">Sin PRs todavía</div>';
+}
+
+// ── EXERCISE MANAGEMENT ───────────────────────────
+function renderExerciseList() {
+  const query = (document.getElementById('ex-search')?.value||'').toLowerCase();
+  const all = getAllExercises();
+  const entries = Object.entries(all).filter(([k]) => k.trim() && (!query||k.toLowerCase().includes(query))).sort((a,b)=>a[0].localeCompare(b[0]));
+  const custom = Object.keys(customExercises).length;
+  document.getElementById('ex-count').textContent = entries.length + ' ejercicios · ' + custom + ' personalizados';
+  const list = document.getElementById('exercise-list');
+  if (!entries.length) { list.innerHTML='<div class="empty" style="padding:20px 0;">Sin resultados</div>'; return; }
+  list.innerHTML = entries.map(([name,muscle]) => {
+    const isCustom = !!customExercises[name];
+    return '<div class="ex-item"><div><div class="ex-name">'+name+(isCustom?' <span style="color:var(--accent);font-size:10px;">✦</span>':'')+'</div><div class="ex-muscle">'+muscle+'</div></div><div class="ex-actions"><button class="icon-btn" onclick="openModal(\''+name.replace(/'/g,"\\'")+'\')"><i class="ti ti-pencil"></i></button><button class="icon-btn danger" onclick="confirmDelete(\''+name.replace(/'/g,"\\'")+'\')"><i class="ti ti-trash"></i></button></div></div>';
+  }).join('');
+}
+
+function openModal(name) {
+  editingExercise = name||null;
+  document.getElementById('modal-title-text').textContent = name ? 'Editar ejercicio' : 'Nuevo ejercicio';
+  document.getElementById('modal-ex-name').value = name||'';
+  document.getElementById('modal-ex-name').disabled = false;
+  document.getElementById('modal-delete-btn').style.display = name ? 'block' : 'none';
+  const all = getAllExercises();
+  const selected = name ? (all[name]||'') : '';
+  document.getElementById('modal-muscle-grid').innerHTML = MUSCLES.map(m => '<div class="muscle-opt'+(m===selected?' selected':'')+'" onclick="selectMuscle(this)">'+m+'</div>').join('');
+  document.getElementById('modal-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('modal-ex-name').focus(), 50);
+}
+function selectMuscle(el) { document.querySelectorAll('.muscle-opt').forEach(o=>o.classList.remove('selected')); el.classList.add('selected'); }
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); editingExercise=null; }
+function closeModalIfOutside(e) { if (e.target===document.getElementById('modal-overlay')) closeModal(); }
+
+async function saveExercise() {
+  const name = document.getElementById('modal-ex-name').value.trim();
+  const muscleEl = document.querySelector('.muscle-opt.selected');
+  if (!name) { toast('⚠ Escribe un nombre'); return; }
+  if (!muscleEl) { toast('⚠ Selecciona grupo muscular'); return; }
+  const muscle = muscleEl.textContent;
+  const oldName = editingExercise;
+
+  // Update locally first
+  if (oldName && oldName !== name) {
+    if (customExercises[oldName]) delete customExercises[oldName];
+    workouts.forEach(w => { if (w.exercise === oldName) { w.exercise = name; w.muscle = muscle; } });
+  }
+  customExercises[name] = muscle;
+
+  // Close modal immediately
+  closeModal();
+  toast('✓ "'+name+'" guardado');
+  document.getElementById('log-exercise-input').value = name;
+  document.getElementById('log-exercise').value = name;
+
+  // Re-render after close
+  setTimeout(() => { refreshSelects(); renderExerciseList(); }, 50);
+
+  // Sync to DB in background
+  setTimeout(async () => {
+    try {
+      if (oldName && oldName !== name) {
+        if (customExercises[oldName] !== undefined) await deleteCustomExFromDB(oldName);
+        const q = query(collection(getDb(), 'workouts'), where('user_id','==',currentUser.uid), where('exercise','==',oldName));
+        const snap = await getDocs(q);
+        snap.docs.forEach(d => updateDoc(doc(getDb(), 'workouts', d.id), {exercise: name, muscle}));
+        workouts.forEach(w => { if (w.exercise === oldName) { w.exercise = name; w.muscle = muscle; } });
+      }
+      await saveCustomExToDB(name, muscle);
+    } catch(e) { console.error('rename error:', e); }
+  }, 100);
+}
+
+async function confirmDelete(name) {
+  if (!confirm('¿Eliminar "'+name+'"? Los registros existentes no se borran.')) return;
+  if (customExercises[name]) {
+    delete customExercises[name];
+    await deleteCustomExFromDB(name);
+  } else {
+    // Base exercise - add to deleted list
+    if (!deletedBaseExercises.includes(name)) {
+      deletedBaseExercises.push(name);
+      try { localStorage.setItem('gym_deleted_base', JSON.stringify(deletedBaseExercises)); } catch(e) {}
+    }
+  }
+  refreshSelects(); renderExerciseList(); closeModal();
+  toast('Eliminado: '+name);
+}
+function deleteExercise() { if (editingExercise) confirmDelete(editingExercise); }
+
+// ── HISTORY DROPDOWN ──────────────────────────────
+function showHistDropdown() { filterHistDropdown(); document.getElementById('hist-dropdown').style.display = 'block'; }
+function hideHistDropdown() { document.getElementById('hist-dropdown').style.display = 'none'; }
+function filterHistDropdown() {
+  const query = (document.getElementById('hist-search').value || '').toLowerCase();
+  const all = getAllExercises();
+  const matches = Object.keys(all).filter(k => k.trim() && (!query || k.toLowerCase().includes(query))).sort((a,b) => a.localeCompare(b)).slice(0,30);
+  const dd = document.getElementById('hist-dropdown');
+  dd.innerHTML = '<div class="ex-dropdown-item" onmousedown="selectHistExercise(\'\')">Todos los ejercicios</div>' +
+    matches.map(name => '<div class="ex-dropdown-item" onmousedown="selectHistExercise(\''+name.replace(/'/g,"\\'")+'\')"><span>'+name+'</span><span class="ex-dropdown-muscle">'+all[name]+'</span></div>').join('');
+  dd.style.display = 'block';
+}
+function selectHistExercise(name) {
+  document.getElementById('hist-search').value = name;
+  document.getElementById('hist-ex-filter').value = name;
+  document.getElementById('hist-dropdown').style.display = 'none';
+  renderHistory();
+}
+
+// ── PROGRESS DROPDOWN ─────────────────────────────
+function showProgDropdown() { filterProgDropdown(); document.getElementById('prog-dropdown').style.display = 'block'; }
+function hideProgDropdown() { document.getElementById('prog-dropdown').style.display = 'none'; }
+function filterProgDropdown() {
+  const query = (document.getElementById('prog-search').value || '').toLowerCase();
+  const all = getAllExercises();
+  // Only show exercises that have workout data
+  const withData = [...new Set(workouts.map(w => w.exercise))];
+  const matches = withData.filter(k => k.trim() && (!query || k.toLowerCase().includes(query))).sort((a,b) => a.localeCompare(b)).slice(0,30);
+  const dd = document.getElementById('prog-dropdown');
+  if (!matches.length) { dd.innerHTML = '<div style="padding:10px 14px;font-size:13px;color:var(--text3);">Sin datos</div>'; dd.style.display='block'; return; }
+  dd.innerHTML = matches.map(name => '<div class="ex-dropdown-item" onmousedown="selectProgExercise(\''+name.replace(/'/g,"\\'")+'\')"><span>'+name+'</span><span class="ex-dropdown-muscle">'+(all[name]||'')+'</span></div>').join('');
+  dd.style.display = 'block';
+}
+function selectProgExercise(name) {
+  document.getElementById('prog-search').value = name;
+  document.getElementById('prog-exercise').value = name;
+  document.getElementById('prog-dropdown').style.display = 'none';
+  renderProgress();
+}
+
+// ── EXERCISE DROPDOWN ─────────────────────────────
+function showExDropdown() { filterExDropdown(); document.getElementById('ex-dropdown').style.display = 'block'; }
+function hideExDropdown() { document.getElementById('ex-dropdown').style.display = 'none'; }
+function filterExDropdown() {
+  const query = (document.getElementById('log-exercise-input').value || '').toLowerCase();
+  const all = getAllExercises();
+  const matches = Object.entries(all)
+    .filter(([k]) => k.trim() && (!query || k.toLowerCase().includes(query)))
+    .sort((a,b) => a[0].localeCompare(b[0]))
+    .slice(0, 30);
+  const dd = document.getElementById('ex-dropdown');
+  if (!matches.length) { dd.innerHTML = '<div style="padding:10px 14px;font-size:13px;color:var(--text3);">Sin resultados</div>'; return; }
+  dd.innerHTML = matches.map(([name, muscle]) =>
+    '<div class="ex-dropdown-item" onmousedown="selectExercise(\'' + name.replace(/'/g,"\\'") + '\')">' +
+    '<span>' + name + '</span><span class="ex-dropdown-muscle">' + muscle + '</span></div>'
+  ).join('');
+  dd.style.display = 'block';
+}
+function selectExercise(name) {
+  document.getElementById('log-exercise-input').value = name;
+  document.getElementById('log-exercise').value = name;
+  document.getElementById('ex-dropdown').style.display = 'none';
+}
+
+// ── UNITS ─────────────────────────────────────────
+let currentUnit = (typeof localStorage !== 'undefined' && localStorage.getItem('gym_unit')) || 'kg';
+function unitLabel() { return currentUnit; }
+function disp(kg) {
+  if (currentUnit === 'lb') return Math.round(kg * 2.20462 * 10) / 10;
+  return kg;
+}
+function setUnit(u) {
+  currentUnit = u;
+  localStorage.setItem('gym_unit', u);
+  document.getElementById('unit-kg').classList.toggle('active', u==='kg');
+  document.getElementById('unit-lb').classList.toggle('active', u==='lb');
+  const lbl = document.getElementById('weight-unit-label');
+  if (lbl) lbl.textContent = u==='lb' ? 'Peso (lb)' : 'Peso (kg)';
+  renderTodayWorkouts(); renderHistory();
+  if (document.getElementById('tab-progress').classList.contains('active')) renderProgress();
+  if (document.getElementById('tab-stats').classList.contains('active')) renderStats();
+}
+
+// ── DELETE WORKOUT ────────────────────────────────
+async function deleteWorkout(id) {
+  if (!confirm('¿Eliminar este ejercicio del historial?')) return;
+  await dbDelete('workouts', id);
+  workouts = workouts.filter(w => w.id !== id);
+  toast('Eliminado');
+  renderTodayWorkouts(); renderHistory();
+  if (document.getElementById('tab-progress').classList.contains('active')) renderProgress();
+  if (document.getElementById('tab-stats').classList.contains('active')) renderStats();
+}
+
+// ── FORGOT PASSWORD ───────────────────────────────
+async function forgotPassword() {
+  const email = document.getElementById('auth-email').value.trim();
+  const err = document.getElementById('auth-err');
+  if (!email) { err.style.color='var(--red)'; err.textContent = 'Escribe tu email primero'; return; }
+  try {
+    await sendPasswordResetEmail(getAuth(), email);
+    err.style.color = 'var(--accent)';
+    err.textContent = '✓ Email de recuperación enviado';
+  } catch(e) {
+    err.style.color = 'var(--red)';
+    err.textContent = 'Error al enviar email';
+  }
+}
+
+function switchAuthTab(mode) {
+  authMode = mode;
+  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', ['login','register'][i] === mode));
+  document.getElementById('auth-btn').textContent = mode === 'login' ? 'Entrar' : 'Crear cuenta';
+  document.getElementById('auth-err').textContent = '';
+  document.getElementById('forgot-link').style.display = mode === 'login' ? 'block' : 'none';
+}
+// ── BODY METRICS ──────────────────────────────────
+let bodyMetrics = [];
+let bodyChartInst = null;
+let savedHeight = parseFloat(localStorage.getItem('gym_height') || '0');
+
+async function deleteBodyMetric(id) {
+  if (!confirm('¿Eliminar esta medición?')) return;
+  await dbDelete('body_metrics', id);
+  bodyMetrics = bodyMetrics.filter(m => m.id !== id);
+  toast('Eliminado');
+  renderBodyLatest();
+  renderBodyChart();
+}
+
+function calcBodyFatPct() {
+  const weight = parseFloat(document.getElementById('body-weight').value) || 0;
+  const fatMass = parseFloat(document.getElementById('body-fat-mass').value) || 0;
+  const fatPct = document.getElementById('body-fat');
+  const bmiDisplay = document.getElementById('body-bmi-display');
+  if (weight > 0 && fatMass > 0) {
+    fatPct.value = Math.round(fatMass / weight * 1000) / 10;
+  }
+  const h = parseFloat(document.getElementById('body-height').value) || savedHeight;
+  if (weight > 0 && h > 0) {
+    bmiDisplay.value = Math.round(weight / ((h/100)*(h/100)) * 10) / 10;
+  }
+}
+
+async function saveBodyMetrics() {
+  const date = document.getElementById('body-date').value;
+  const weight = parseFloat(document.getElementById('body-weight').value) || null;
+  const fatMass = parseFloat(document.getElementById('body-fat-mass').value) || null;
+  const bodyFat = parseFloat(document.getElementById('body-fat').value) || null;
+  const muscle = parseFloat(document.getElementById('body-muscle').value) || null;
+  const water = parseFloat(document.getElementById('body-water').value) || null;
+  const visceral = parseFloat(document.getElementById('body-visceral').value) || null;
+  const metabolic = parseFloat(document.getElementById('body-metabolic').value) || null;
+  const heightInput = parseFloat(document.getElementById('body-height').value) || null;
+  if (heightInput) { savedHeight = heightInput; try { localStorage.setItem('gym_height', heightInput); } catch(e) {} }
+  const h = savedHeight || heightInput;
+  const bmi = (weight && h) ? Math.round((weight / ((h/100) * (h/100))) * 10) / 10 : null;
+  if (!date) { toast('⚠ Selecciona fecha'); return; }
+  try {
+    const row = { user_id: currentUser.uid, date, weight, body_fat: bodyFat, fat_mass: fatMass,
+      muscle_mass: muscle, water, visceral_fat: visceral, metabolic_rate: metabolic, bmi, notes: '' };
+    const saved = await dbInsert('body_metrics', row);
+    bodyMetrics.push(saved);
+    bodyMetrics.sort((a,b) => a.date.localeCompare(b.date));
+    toast('✓ Métricas guardadas');
+    renderBodyLatest();
+    renderBodyChart();
+    ['body-weight','body-fat-mass','body-fat','body-muscle','body-water','body-visceral','body-metabolic','body-bmi-display'].forEach(id => document.getElementById(id).value = '');
+  } catch(e) { toast('❌ Error al guardar'); console.error(e); }
+}
+
+function renderBodyLatest() {
+  const c = document.getElementById('body-latest');
+  if (!bodyMetrics.length) { c.innerHTML = ''; document.getElementById('body-chart-card').style.display = 'none'; return; }
+  document.getElementById('body-chart-card').style.display = 'block';
+  const last = bodyMetrics[bodyMetrics.length - 1];
+  const prev = bodyMetrics.length > 1 ? bodyMetrics[bodyMetrics.length - 2] : null;
+  const metrics = [
+    {label:'Peso', val:last.weight, unit:'kg', key:'weight'},
+    {label:'Masa grasa', val:last.fat_mass, unit:'kg', key:'fat_mass'},
+    {label:'% Grasa', val:last.body_fat, unit:'%', key:'body_fat'},
+    {label:'Músculo esquelético', val:last.muscle_mass, unit:'kg', key:'muscle_mass'},
+    {label:'Agua', val:last.water, unit:'kg', key:'water'},
+    {label:'Grasa visceral', val:last.visceral_fat, unit:'', key:'visceral_fat'},
+    {label:'Tasa metabólica', val:last.metabolic_rate, unit:'kcal', key:'metabolic_rate'},
+    {label:'BMI', val:last.bmi, unit:'', key:'bmi'},
+  ].filter(m => m.val !== null && m.val !== undefined);
+  const bmiLabel = (bmi) => { if (!bmi) return ''; if (bmi<18.5) return ' · Bajo peso'; if (bmi<25) return ' · Normal'; if (bmi<30) return ' · Sobrepeso'; return ' · Obesidad'; };
+  let html = '<div class="card" style="margin-top:0;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div class="card-title" style="margin-bottom:0;">Última medición — ' + last.date + '</div><button class="delete-workout-btn" onclick="deleteBodyMetric(\'' + last.id + '\')" title="Eliminar"><i class="ti ti-trash"></i></button></div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">';
+  metrics.forEach(m => {
+    const diff = prev && prev[m.key] != null ? Math.round((m.val - prev[m.key])*10)/10 : null;
+    const diffColor = diff === null ? '' : (diff < 0 ? 'var(--accent)' : diff > 0 ? 'var(--red)' : 'var(--text3)');
+    const diffStr = diff !== null ? (diff > 0 ? '+' : '') + diff : '';
+    const extra = m.key === 'bmi' ? bmiLabel(m.val) : '';
+    html += '<div style="background:var(--bg3);border-radius:var(--radius);padding:10px;"><div style="font-size:11px;color:var(--text3);font-family:DM Mono,monospace;margin-bottom:4px;">' + m.label + '</div><div style="font-size:20px;font-weight:600;">' + m.val + '<span style="font-size:12px;color:var(--text2);margin-left:2px;">' + m.unit + '</span></div>' + (diffStr ? '<div style="font-size:11px;color:' + diffColor + ';">' + diffStr + extra + '</div>' : '') + '</div>';
+  });
+  html += '</div></div>';
+  c.innerHTML = html;
+  renderBodyHistory();
+}
+
+function renderBodyHistory() {
+  const c = document.getElementById('body-history-list');
+  if (!c || bodyMetrics.length <= 1) { if(c) c.innerHTML = ''; return; }
+  const sorted = [...bodyMetrics].sort((a,b) => b.date.localeCompare(a.date));
+  let html = '<div class="card" style="margin-top:0;padding:0 16px;"><div class="card-title" style="padding-top:16px;">Historial de mediciones</div>';
+  sorted.forEach(m => {
+    const parts = [];
+    if (m.weight) parts.push(m.weight + 'kg');
+    if (m.fat_mass) parts.push('Grasa: ' + m.fat_mass + 'kg');
+    if (m.muscle_mass) parts.push('Músculo: ' + m.muscle_mass + 'kg');
+    if (m.bmi) parts.push('BMI: ' + m.bmi);
+    html += '<div class="log-item"><div><div class="log-name">' + m.date + '</div><div class="log-meta">' + parts.join(' · ') + '</div></div><button class="delete-workout-btn" onclick="deleteBodyMetric(\'' + m.id + '\')" title="Eliminar"><i class="ti ti-trash"></i></button></div>';
+  });
+  html += '</div>';
+  c.innerHTML = html;
+}
+  const sel = document.getElementById('body-metric-select');
+  if (!sel) return;
+  const metric = sel.value;
+  const labels = { weight:'Peso (kg)', body_fat:'% Grasa', fat_mass:'Masa grasa (kg)', muscle_mass:'Masa muscular (kg)', water:'Agua (kg)', protein:'Proteína (kg)', bmi:'BMI' };
+  const data = bodyMetrics.filter(m => m[metric] !== null && m[metric] !== undefined);
+  if (!data.length) return;
+  if (bodyChartInst) { bodyChartInst.destroy(); bodyChartInst = null; }
+  bodyChartInst = new Chart(document.getElementById('body-chart'), {
+    type: 'line',
+    data: {
+      labels: data.map(d => { const dt = new Date(d.date+'T12:00:00'); return dt.toLocaleDateString('es-ES',{day:'numeric',month:'short'}); }),
+      datasets: [{ label: labels[metric], data: data.map(d => d[metric]),
+        borderColor: '#c8f135', backgroundColor: 'rgba(200,241,53,0.04)', tension: 0.35,
+        pointBackgroundColor: data.map((d,i) => { if(i===0) return '#888'; const p=data[i-1][metric]; if(d[metric]<p) return '#c8f135'; if(d[metric]>p) return '#ff5a5a'; return '#ffd166'; }),
+        pointRadius: 5, pointBorderColor: 'transparent', borderWidth: 2 }]
+    },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales: { x:{ticks:{color:'#666',font:{size:11,family:'DM Mono'},maxRotation:45},grid:{color:'rgba(255,255,255,0.04)'}}, y:{ticks:{color:'#666',font:{size:11,family:'DM Mono'}},grid:{color:'rgba(255,255,255,0.04)'}} } }
+  });
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['log','history','progress','stats','exercises','body'][i]===tab));
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  if (tab==='stats') renderStats();
+  if (tab==='history') renderHistory();
+  if (tab==='progress') renderProgress();
+  if (tab==='log') renderTodayWorkouts();
+  if (tab==='exercises') renderExerciseList();
+  if (tab==='body') { renderBodyLatest(); renderBodyChart(); }
+}
+
+// ── BOOT ──────────────────────────────────────────
+// Expose functions globally (required for onclick handlers with type=module)
+window.submitAuth = submitAuth;
+window.signOut = signOut;
+window.toggleUserMenu = toggleUserMenu;
+window.forgotPassword = forgotPassword;
+window.switchAuthTab = switchAuthTab;
+window.switchTab = switchTab;
+window.addSet = addSet;
+window.removeSet = removeSet;
+window.saveWorkout = saveWorkout;
+window.deleteWorkout = deleteWorkout;
+window.openModal = openModal;
+window.closeModal = closeModal;
+window.closeModalIfOutside = closeModalIfOutside;
+window.selectMuscle = selectMuscle;
+window.saveExercise = saveExercise;
+window.confirmDelete = confirmDelete;
+window.deleteExercise = deleteExercise;
+window.renderExerciseList = renderExerciseList;
+window.filterExDropdown = filterExDropdown;
+window.showExDropdown = showExDropdown;
+window.hideExDropdown = hideExDropdown;
+window.selectExercise = selectExercise;
+window.filterHistDropdown = filterHistDropdown;
+window.showHistDropdown = showHistDropdown;
+window.hideHistDropdown = hideHistDropdown;
+window.selectHistExercise = selectHistExercise;
+window.filterProgDropdown = filterProgDropdown;
+window.showProgDropdown = showProgDropdown;
+window.hideProgDropdown = hideProgDropdown;
+window.selectProgExercise = selectProgExercise;
+window.setUnit = setUnit;
+window.renderBodyHistory = renderBodyHistory;
+window.deleteBodyMetric = deleteBodyMetric;
+window.calcBodyFatPct = calcBodyFatPct;
+window.saveBodyMetrics = saveBodyMetrics;
+window.renderBodyChart = renderBodyChart;
+window.renderHistory = renderHistory;
+window.renderProgress = renderProgress;
+window.renderStats = renderStats;
+
+</script>
+</body>
+</html>
