@@ -905,6 +905,8 @@ async function signOut() {
 }
 
 // Firebase auth state listener - handles session persistence automatically
+const ADMIN_EMAIL = 'susanasaleh@gmail.com';
+
 onAuthStateChanged(getAuth(), async (user) => {
   const btn = document.getElementById('auth-btn');
   if (btn) { btn.disabled = false; btn.textContent = authMode === 'login' ? 'Entrar' : 'Crear cuenta'; }
@@ -2317,8 +2319,7 @@ window.confirmAddFood = confirmAddFood;
 window.removeFood = removeFood;
 window.previewFood = previewFood;
 
-const ADMIN_EMAIL = 'susanasaleh@gmail.com';
-
+// ── ADMIN ──────────────────────────────────────────
 async function checkUserStatus(user) {
   // Admin always approved
   if (user.email === ADMIN_EMAIL) return 'approved';
